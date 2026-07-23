@@ -1,0 +1,94 @@
+<%- include("../partials/head", { extraCss: '/css/auth.css' }) %>
+<%
+  var _p = (typeof currentPath !== 'undefined' ? currentPath : '/dang-nhap');
+  var _q = next ? ('&next=' + encodeURIComponent(next)) : '';
+%>
+
+<main class="auth">
+  <!-- Bảng thương hiệu -->
+  <aside class="auth-brand-side">
+    <span class="auth-eyebrow"><span class="rule"></span>Alluvium · Hoa Lư · Ninh Bình</span>
+    <div class="auth-brand-mid">
+      <a href="/" aria-label="THỨC by SEASOUND">
+        <h2 class="auth-wordmark">THỨC <span>by</span> SEASOUND</h2>
+      </a>
+      <p class="auth-tagline"><%= t('Dàn Khí Nhạc Bản Địa Đông Nam Á — khu vực quản trị nội dung.', 'Southeast Asian Indigenous Music Ensemble — content admin.') %></p>
+    </div>
+    <span class="auth-brand-foot">© <%= new Date().getFullYear() %> SEASOUND</span>
+  </aside>
+
+  <!-- Bảng biểu mẫu -->
+  <section class="auth-form-side">
+    <span class="auth-lang" aria-label="Language">
+      <a href="<%= _p %>?lang=vi<%= _q %>" class="<%= lang === 'vi' ? 'on' : '' %>" hreflang="vi">VI</a><span class="sep">/</span><a href="<%= _p %>?lang=en<%= _q %>" class="<%= lang === 'en' ? 'on' : '' %>" hreflang="en">EN</a>
+    </span>
+
+    <form class="auth-form" method="post" action="/dang-nhap" autocomplete="on" id="login-form" novalidate>
+      <h1><%= t('Đăng nhập quản trị', 'Admin sign in') %></h1>
+      <p class="sub"><%= t('Khu vực dành cho ban nội dung và quản trị viên của THỨC by SEASOUND.', 'For the THỨC by SEASOUND editorial and admin team.') %></p>
+
+      <% if (error) { %>
+        <div class="auth-alert" role="alert" aria-live="assertive">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+          <span><%= error %></span>
+        </div>
+      <% } %>
+
+      <input type="hidden" name="next" value="<%= next %>">
+
+      <div class="auth-field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" value="<%= email %>" required autocomplete="username"
+               autofocus inputmode="email" placeholder="ban@seasound.com">
+      </div>
+
+      <div class="auth-field">
+        <label for="password"><%= t('Mật khẩu', 'Password') %></label>
+        <div class="pw-field">
+          <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••">
+          <button type="button" class="pw-toggle" aria-label="<%= t('Hiện mật khẩu', 'Show password') %>" aria-pressed="false">
+            <svg class="eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12s3.5-7 10-7c2 0 3.8.6 5.3 1.5M22 12s-3.5 7-10 7c-2 0-3.8-.6-5.3-1.5"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="auth-submit" type="submit" id="login-btn" aria-busy="false">
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="txt"><%= t('Đăng nhập', 'Sign in') %></span>
+      </button>
+
+      <p class="auth-back"><a href="/">← <%= t('Về trang chủ', 'Back to home') %></a></p>
+    </form>
+  </section>
+</main>
+
+<script>
+  (function () {
+    // Hiện / ẩn mật khẩu
+    var toggle = document.querySelector('.pw-toggle');
+    var pw = document.getElementById('password');
+    var showTxt = '<%= t('Hiện mật khẩu', 'Show password') %>';
+    var hideTxt = '<%= t('Ẩn mật khẩu', 'Hide password') %>';
+    toggle.addEventListener('click', function () {
+      var show = pw.type === 'password';
+      pw.type = show ? 'text' : 'password';
+      toggle.classList.toggle('on', show);
+      toggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+      toggle.setAttribute('aria-label', show ? hideTxt : showTxt);
+      pw.focus();
+    });
+
+    // Phản hồi khi gửi biểu mẫu
+    var form = document.getElementById('login-form');
+    var btn = document.getElementById('login-btn');
+    var sending = '<%= t('Đang đăng nhập…', 'Signing in…') %>';
+    form.addEventListener('submit', function () {
+      if (!form.checkValidity()) return;
+      btn.setAttribute('aria-busy', 'true');
+      btn.querySelector('.txt').textContent = sending;
+    });
+  })();
+</script>
+</body>
+</html>

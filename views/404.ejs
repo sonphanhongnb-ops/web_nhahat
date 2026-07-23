@@ -1,0 +1,23 @@
+<%- include("partials/head", { extraCss: '/css/pages.css' }) %>
+<%- include("partials/nav") %>
+
+<main id="top" class="page-main">
+  <section class="page-hero errpage">
+    <div class="wrap">
+      <div class="sec-head"><span class="num">404</span><span class="eyebrow"><%= t('Không tìm thấy', 'Not found') %></span><span class="rule"></span></div>
+      <h1><%= t('Trang này đã lặng tiếng.', 'This page has fallen silent.') %></h1>
+      <p class="lede"><%= t('Đường dẫn bạn tìm không tồn tại hoặc đã được chuyển sang địa chỉ khác.', 'The page you are looking for does not exist or has moved.') %></p>
+      <div class="hero-cta">
+        <a class="btn btn-gold" href="/"><%= t('Về trang chủ', 'Back to home') %></a>
+        <a class="btn btn-ghost" href="/tin-tuc"><%= t('Xem tin tức', 'View news') %></a>
+      </div>
+      <form class="page-search" action="/tim-kiem" method="get" role="search" style="margin-top:2rem">
+        <input type="search" name="q" placeholder="<%= t('Tìm nội dung khác…', 'Search…') %>" aria-label="<%= t('Tìm kiếm', 'Search') %>">
+        <button class="btn btn-ghost btn-sm" type="submit"><%= t('Tìm', 'Search') %></button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>
+<%- include("partials/end") %>

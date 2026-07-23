@@ -1,0 +1,79 @@
+<%- include("partials/header") %>
+
+<form method="post" action="/admin/settings">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>Thông tin website</h2>
+      <div class="field"><label for="s1">Tên website</label><input type="text" name="site_name" id="s1" value="<%= values.site_name %>"></div>
+      <div class="field"><label for="s2">Khẩu hiệu</label><input type="text" name="site_tagline" id="s2" value="<%= values.site_tagline %>"></div>
+      <div class="field">
+        <label for="s3">Mô tả website (dùng cho thẻ meta mặc định)</label>
+        <textarea name="site_description" id="s3" rows="3"><%= values.site_description %></textarea>
+      </div>
+      <div class="field"><label for="s4">Từ khoá chung</label><input type="text" name="site_keywords" id="s4" value="<%= values.site_keywords %>"></div>
+      <div class="field"><label for="s5">Ảnh chia sẻ mặc định (Open Graph)</label><input type="text" name="default_og_image" id="s5" value="<%= values.default_og_image %>"></div>
+      <div class="field"><label for="s6">Số bài mỗi trang</label><input type="number" name="posts_per_page" id="s6" value="<%= values.posts_per_page %>" min="3" max="48"></div>
+      <div class="field">
+        <label for="s7">Mẫu tiêu đề SEO</label>
+        <input type="text" name="seo_title_template" id="s7" value="<%= values.seo_title_template %>">
+        <div class="help">Dùng <code class="k">%title%</code> và <code class="k">%site%</code>. Ví dụ: <code class="k">%title% — %site%</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tổ chức &amp; dữ liệu có cấu trúc</h2>
+      <div class="field"><label for="o1">Tên tổ chức</label><input type="text" name="organization_name" id="o1" value="<%= values.organization_name %>"></div>
+      <div class="field"><label for="o2">Địa chỉ</label><input type="text" name="organization_address" id="o2" value="<%= values.organization_address %>"></div>
+      <div class="field"><label for="o3">Email liên hệ</label><input type="email" name="organization_email" id="o3" value="<%= values.organization_email %>"></div>
+      <div class="field"><label for="o4">Điện thoại</label><input type="text" name="organization_phone" id="o4" value="<%= values.organization_phone %>"></div>
+      <div class="grid g2" style="gap:.8rem">
+        <div class="field"><label for="o5">Vĩ độ</label><input type="text" name="organization_lat" id="o5" value="<%= values.organization_lat %>"></div>
+        <div class="field"><label for="o6">Kinh độ</label><input type="text" name="organization_lng" id="o6" value="<%= values.organization_lng %>"></div>
+      </div>
+      <div class="field"><label for="o7">Facebook</label><input type="url" name="social_facebook" id="o7" value="<%= values.social_facebook %>" placeholder="https://facebook.com/…"></div>
+      <div class="field"><label for="o8">YouTube</label><input type="url" name="social_youtube" id="o8" value="<%= values.social_youtube %>"></div>
+      <div class="field"><label for="o9">Instagram</label><input type="url" name="social_instagram" id="o9" value="<%= values.social_instagram %>"></div>
+      <p class="help">Các thông tin này được đưa vào JSON-LD kiểu <code class="k">PerformingArtsTheater</code> giúp Google hiển thị hồ sơ tổ chức.</p>
+    </div>
+  </div>
+
+  <div class="grid g2 mt">
+    <div class="card">
+      <h2>Công cụ đo lường &amp; xác minh</h2>
+      <div class="field">
+        <label for="g1">Google Analytics (Measurement ID)</label>
+        <input type="text" name="google_analytics_id" id="g1" value="<%= values.google_analytics_id %>" placeholder="G-XXXXXXXXXX">
+      </div>
+      <div class="field">
+        <label for="g2">Google Search Console — mã xác minh</label>
+        <input type="text" name="google_site_verification" id="g2" value="<%= values.google_site_verification %>">
+        <div class="help">Chỉ dán phần nội dung của thẻ <code class="k">content="…"</code>.</div>
+      </div>
+      <div class="field"><label for="g3">Bing Webmaster — mã xác minh</label><input type="text" name="bing_site_verification" id="g3" value="<%= values.bing_site_verification %>"></div>
+      <div class="field"><label for="g4">Facebook Domain Verification</label><input type="text" name="facebook_domain_verification" id="g4" value="<%= values.facebook_domain_verification %>"></div>
+    </div>
+
+    <div class="card">
+      <h2>robots.txt bổ sung</h2>
+      <div class="field">
+        <textarea name="robots_extra" rows="8" placeholder="Ví dụ:&#10;Disallow: /thu-nghiem&#10;Crawl-delay: 2"><%= values.robots_extra %></textarea>
+        <div class="help">Nội dung này được nối vào cuối tệp <a href="/robots.txt" target="_blank" rel="noopener" style="color:var(--gold)">robots.txt</a> đã sinh sẵn.</div>
+      </div>
+      <div class="field">
+        <label for="l1">Ngôn ngữ / vùng (Open Graph locale)</label>
+        <input type="text" name="site_locale" id="l1" value="<%= values.site_locale %>">
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt">
+    <div class="spread">
+      <p class="muted small" style="margin:0">Địa chỉ website hiện tại: <code class="k"><%= siteUrl %></code> — đổi bằng biến môi trường <code class="k">SITE_URL</code> trong tệp <code class="k">.env</code>.</p>
+      <button class="btn btn-gold" type="submit">Lưu cấu hình</button>
+    </div>
+  </div>
+</form>
+
+<%- include("partials/footer") %>

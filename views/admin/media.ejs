@@ -1,0 +1,53 @@
+<%- include("partials/header") %>
+
+<div class="card mb">
+  <h2>Tải ảnh lên</h2>
+  <form method="post" action="/admin/media/upload" enctype="multipart/form-data" id="upload-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="dropzone" id="dropzone">
+      <b>Kéo thả ảnh vào đây</b> hoặc bấm để chọn tệp
+      <div class="small mt">JPG, PNG, WebP, AVIF, GIF, SVG · tối đa <%= maxMB %>MB mỗi tệp · tối đa 10 tệp</div>
+    </div>
+    <input type="file" name="files" id="file-input" accept="image/*" multiple hidden>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Thư viện (<%= pg.total %> tệp)</h2>
+  <% if (!media.length) { %>
+    <div class="empty">Chưa có ảnh nào trong thư viện.</div>
+  <% } %>
+  <div class="media-grid">
+    <% media.forEach(function(m){ %>
+      <div class="media-item">
+        <div class="thumb"><img src="<%= m.url %>" alt="<%= m.alt %>" loading="lazy"></div>
+        <div class="meta">
+          <div class="fname"><%= m.filename %><br><%= Math.round(m.size / 1024) %> KB</div>
+          <form method="post" action="/admin/media/<%= m.id %>/update">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <input type="text" name="alt" value="<%= m.alt %>" placeholder="Mô tả ảnh (ALT)" title="ALT — quan trọng cho SEO ảnh">
+            <input type="text" name="caption" value="<%= m.caption %>" placeholder="Chú thích">
+            <div class="row" style="gap:.3rem">
+              <button class="btn btn-sm" type="submit">Lưu</button>
+              <button class="btn btn-sm" type="button" onclick="navigator.clipboard.writeText('<%= m.url %>');this.textContent='Đã chép'">Chép URL</button>
+            </div>
+          </form>
+          <form method="post" action="/admin/media/<%= m.id %>/delete" data-confirm="Xoá ảnh này khỏi máy chủ?" style="margin-top:.35rem">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="btn btn-sm btn-danger" type="submit" style="width:100%">Xoá</button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <% if (pg.pages > 1) { %>
+    <nav class="pager">
+      <% for (var i = 1; i <= pg.pages; i++) { %>
+        <a href="?page=<%= i %>" class="<%= i === pg.page ? 'on' : '' %>"><%= i %></a>
+      <% } %>
+    </nav>
+  <% } %>
+</div>
+
+<%- include("partials/footer") %>

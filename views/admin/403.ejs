@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Không đủ quyền · Quản trị</title>
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+<div style="min-height:100vh;display:grid;place-items:center;padding:2rem">
+  <div class="card" style="max-width:520px;text-align:center">
+    <h2 style="color:var(--rose)">Không đủ quyền truy cập</h2>
+    <p class="muted">
+      Tài khoản <b><%= typeof user !== 'undefined' && user ? user.name : 'của bạn' %></b>
+      <% if (typeof user !== 'undefined' && user) { %>(<%= ROLES[user.role].label %>)<% } %>
+      không có quyền thực hiện thao tác này.
+    </p>
+    <p class="small muted">Quyền yêu cầu: <code class="k"><%= permission %></code></p>
+    <div class="row" style="justify-content:center;margin-top:1.4rem">
+      <a class="btn btn-gold btn-sm" href="/admin">Về bảng điều khiển</a>
+      <a class="btn btn-sm" href="/">Về trang chủ</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

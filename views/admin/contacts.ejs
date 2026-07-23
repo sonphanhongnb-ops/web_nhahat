@@ -1,0 +1,40 @@
+<%- include("partials/header") %>
+
+<div class="card">
+  <h2>Liên hệ từ website (<%= pg.total %>)</h2>
+  <% if (!contacts.length) { %>
+    <div class="empty">Chưa có liên hệ nào.</div>
+  <% } %>
+
+  <% contacts.forEach(function(c){ %>
+    <div class="card" style="background:var(--ink-3);margin-bottom:.9rem;<%= c.handled ? 'opacity:.6' : '' %>">
+      <div class="spread">
+        <div>
+          <b><%= c.name %></b>
+          <span class="muted small"> · <%= c.email %><%= c.phone ? ' · ' + c.phone : '' %></span>
+          <div class="t-sub"><%= U.formatDateTimeVN(c.created_at) %><%= c.subject ? ' · ' + c.subject : '' %></div>
+        </div>
+        <div class="row">
+          <span class="pill <%= c.handled ? 'ok' : 'warn' %>"><%= c.handled ? 'Đã xử lý' : 'Chưa xử lý' %></span>
+          <form method="post" action="/admin/contacts/<%= c.id %>/handled" style="display:inline">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="btn btn-sm" type="submit"><%= c.handled ? 'Đánh dấu chưa xử lý' : 'Đánh dấu đã xử lý' %></button>
+          </form>
+          <form method="post" action="/admin/contacts/<%= c.id %>/delete" style="display:inline" data-confirm="Xoá liên hệ này?">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="btn btn-sm btn-danger" type="submit">Xoá</button>
+          </form>
+        </div>
+      </div>
+      <p class="mt small" style="white-space:pre-wrap;margin-bottom:0"><%= c.message %></p>
+    </div>
+  <% }) %>
+
+  <% if (pg.pages > 1) { %>
+    <nav class="pager">
+      <% for (var i = 1; i <= pg.pages; i++) { %><a href="?page=<%= i %>" class="<%= i === pg.page ? 'on' : '' %>"><%= i %></a><% } %>
+    </nav>
+  <% } %>
+</div>
+
+<%- include("partials/footer") %>

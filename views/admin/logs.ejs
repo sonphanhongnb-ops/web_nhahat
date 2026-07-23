@@ -1,0 +1,29 @@
+<%- include("partials/header") %>
+
+<div class="card">
+  <h2>Nhật ký hoạt động (<%= pg.total %>)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Thời gian</th><th>Người dùng</th><th>Hành động</th><th>Đối tượng</th><th>Chi tiết</th><th>IP</th></tr></thead>
+      <tbody>
+        <% logs.forEach(function(l){ %>
+          <tr>
+            <td class="small muted" style="white-space:nowrap"><%= U.formatDateTimeVN(l.created_at) %></td>
+            <td class="small"><%= l.user_name || 'Khách' %><div class="t-sub"><%= l.user_email || '' %></div></td>
+            <td><code class="k"><%= l.action %></code></td>
+            <td class="small muted"><%= l.entity %><%= l.entity_id ? ' #' + l.entity_id : '' %></td>
+            <td class="small"><%= l.detail %></td>
+            <td class="small muted"><%= l.ip %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% if (pg.pages > 1) { %>
+    <nav class="pager">
+      <% for (var i = 1; i <= pg.pages; i++) { %><a href="?page=<%= i %>" class="<%= i === pg.page ? 'on' : '' %>"><%= i %></a><% } %>
+    </nav>
+  <% } %>
+</div>
+
+<%- include("partials/footer") %>

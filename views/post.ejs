@@ -1,0 +1,126 @@
+<%- include("partials/head", { extraCss: '/css/pages.css' }) %>
+<%- include("partials/nav") %>
+
+<main id="top" class="page-main">
+  <% if (isPreview) { %>
+    <div class="preview-bar"><%= t('Đang xem trước bản', 'Previewing') %> <b><%= post.status %></b> — <%= t('bài này chưa hiển thị công khai.', 'this post is not public yet.') %></div>
+  <% } %>
+
+  <article class="article">
+    <%
+      var _meta = '<div class="article-meta">'
+        + '<span>' + t('Bởi', 'By') + ' <b>' + (post.author_name || settings.site_name) + '</b></span>'
+        + '<span>·</span><time datetime="' + post.dateIso + '">' + post.dateFull + '</time>'
+        + '<span>·</span><span>' + post.reading_time + ' ' + t('phút đọc', 'min read') + '</span>'
+        + '<span>·</span><span>' + post.views + ' ' + t('lượt xem', 'views') + '</span></div>';
+    %>
+
+    <% if (post.cover_image) { %>
+      <!-- Hero ảnh bìa — chữ đè trên gradient tối, đảm bảo đọc rõ -->
+      <header class="article-hero">
+        <div class="article-hero-media" aria-hidden="true">
+          <img src="<%= post.cover_image %>" alt="" width="1600" height="900" fetchpriority="high" decoding="async">
+          <span class="veil"></span>
+        </div>
+        <div class="wrap article-hero-inner">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="/"><%= t('Trang chủ', 'Home') %></a><span>·</span>
+            <a href="/tin-tuc"><%= t('Tin tức', 'News') %></a><span>·</span>
+            <% if (post.category_name) { %><a href="/chuyen-muc/<%= post.category_slug %>"><%= post.category_name %></a><span>·</span><% } %>
+            <span aria-current="page"><%= post.title %></span>
+          </nav>
+          <h1><%= post.title %></h1>
+          <p class="lede"><%= post.excerpt %></p>
+          <%- _meta %>
+        </div>
+      </header>
+    <% } else { %>
+      <!-- Không có ảnh bìa — tiêu đề trên nền tối -->
+      <header class="article-head">
+        <div class="wrap">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="/"><%= t('Trang chủ', 'Home') %></a><span>·</span>
+            <a href="/tin-tuc"><%= t('Tin tức', 'News') %></a><span>·</span>
+            <% if (post.category_name) { %><a href="/chuyen-muc/<%= post.category_slug %>"><%= post.category_name %></a><span>·</span><% } %>
+            <span aria-current="page"><%= post.title %></span>
+          </nav>
+          <h1><%= post.title %></h1>
+          <p class="lede"><%= post.excerpt %></p>
+          <%- _meta %>
+        </div>
+      </header>
+    <% } %>
+
+    <div class="wrap article-layout">
+      <div class="article-body">
+        <%- post.content_html %>
+
+        <% if (post.tags.length) { %>
+          <div class="article-tags">
+            <% post.tags.forEach(function(t){ %><a href="/tag/<%= t.slug %>">#<%= t.name %></a><% }) %>
+          </div>
+        <% } %>
+
+        <div class="share">
+          <span><%= t('Chia sẻ:', 'Share:') %></span>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(seo.url) %>" target="_blank" rel="noopener nofollow">Facebook</a>
+          <a href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent(seo.url) %>&text=<%= encodeURIComponent(post.title) %>" target="_blank" rel="noopener nofollow">X</a>
+          <a href="mailto:?subject=<%= encodeURIComponent(post.title) %>&body=<%= encodeURIComponent(seo.url) %>" rel="nofollow">Email</a>
+          <button class="copy-link" data-url="<%= seo.url %>"><%= t('Sao chép liên kết', 'Copy link') %></button>
+        </div>
+
+        <nav class="post-nav" aria-label="<%= t('Bài viết khác', 'More posts') %>">
+          <% if (prevPost) { %><a class="prev" href="/tin-tuc/<%= prevPost.slug %>"><span><%= t('← Bài trước', '← Previous') %></span><b><%= prevPost.title %></b></a><% } %>
+          <% if (nextPost) { %><a class="next" href="/tin-tuc/<%= nextPost.slug %>"><span><%= t('Bài sau →', 'Next →') %></span><b><%= nextPost.title %></b></a><% } %>
+        </nav>
+      </div>
+
+      <aside class="side">
+        <% if (toc.length > 1) { %>
+        <div class="side-box toc">
+          <h3><%= t('Nội dung bài viết', 'Contents') %></h3>
+          <ul>
+            <% toc.forEach(function(t){ %>
+              <li class="lv<%= t.level %>"><a href="#<%= t.id %>"><%= t.text %></a></li>
+            <% }) %>
+          </ul>
+        </div>
+        <% } %>
+        <div class="side-box author-box">
+          <h3><%= t('Tác giả', 'Author') %></h3>
+          <b><%= post.author_name || settings.site_name %></b>
+          <p><%= post.author_bio || t('Ban nội dung THỨC by SEASOUND.', 'THỨC by SEASOUND editorial team.') %></p>
+        </div>
+        <div class="side-box side-cta">
+          <h3><%= t('Đặt vé', 'Reserve seats') %></h3>
+          <p><%= t('Đặt vé trực tuyến cho vở diễn THỨC tại Trung tâm Biểu diễn Alluvium, Hoa Lư, Ninh Bình.', 'Book online for THỨC at the Alluvium Performing Arts Center, Hoa Lư, Ninh Bình.') %></p>
+          <a class="btn btn-gold btn-sm" href="/#lich-dien"><%= t('Xem lịch diễn', 'View schedule') %></a>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <% if (related.length) { %>
+  <section class="band related">
+    <div class="wrap">
+      <div class="sec-head"><span class="num">→</span><span class="eyebrow"><%= t('Đọc thêm', 'Read more') %></span><span class="rule"></span></div>
+      <h2><%= t('Bài viết liên quan', 'Related articles') %></h2>
+      <div class="card-grid">
+        <% related.forEach(function(p){ %>
+          <article class="card">
+            <a class="card-thumb" href="<%= p.url %>"><img src="<%= p.cover_image || '/img/space-1.jpg' %>" alt="<%= p.cover_alt || p.title %>" loading="lazy" decoding="async"></a>
+            <div class="card-body">
+              <div class="card-meta"><time datetime="<%= p.dateIso %>"><%= p.dateFull %></time></div>
+              <h3><a href="<%= p.url %>"><%= p.title %></a></h3>
+              <p><%= p.excerpt %></p>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+</main>
+
+<%- include("partials/footer") %>
+<%- include("partials/end") %>

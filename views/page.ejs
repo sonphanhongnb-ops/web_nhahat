@@ -1,0 +1,36 @@
+<%- include("partials/head", { extraCss: '/css/pages.css' }) %>
+<%- include("partials/nav") %>
+
+<main id="top" class="page-main">
+  <article class="article">
+    <header class="article-head">
+      <div class="wrap">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/"><%= t('Trang chủ', 'Home') %></a><span>·</span><span aria-current="page"><%= post.title %></span>
+        </nav>
+        <h1><%= post.title %></h1>
+        <% if (post.excerpt) { %><p class="lede"><%= post.excerpt %></p><% } %>
+      </div>
+    </header>
+
+    <div class="wrap article-layout">
+      <div class="article-body"><%- post.content_html %></div>
+      <aside class="side">
+        <% if (toc.length > 1) { %>
+        <div class="side-box toc">
+          <h3><%= t('Nội dung', 'Contents') %></h3>
+          <ul><% toc.forEach(function(h){ %><li class="lv<%= h.level %>"><a href="#<%= h.id %>"><%= h.text %></a></li><% }) %></ul>
+        </div>
+        <% } %>
+        <div class="side-box side-cta">
+          <h3><%= t('Đặt vé', 'Reserve seats') %></h3>
+          <p><%= t('Vở diễn THỨC · Trung tâm Biểu diễn Alluvium · Hoa Lư, Ninh Bình.', 'THỨC · Alluvium Performing Arts Center · Hoa Lư, Ninh Bình.') %></p>
+          <a class="btn btn-gold btn-sm" href="/#lich-dien"><%= t('Xem lịch diễn', 'View schedule') %></a>
+        </div>
+      </aside>
+    </div>
+  </article>
+</main>
+
+<%- include("partials/footer") %>
+<%- include("partials/end") %>

@@ -1,0 +1,119 @@
+<%- include("partials/header") %>
+
+<div class="grid g2">
+  <div class="card">
+    <h2>Tài khoản (<%= users.length %>)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Người dùng</th><th>Vai trò</th><th>Bài</th><th>Đăng nhập gần nhất</th><th></th></tr></thead>
+        <tbody>
+          <% users.forEach(function(u){ %>
+            <tr>
+              <td>
+                <b class="t-title"><%= u.name %></b>
+                <% if (u.id === user.id) { %> <span class="pill warn">Bạn</span><% } %>
+                <% if (!u.active) { %> <span class="pill bad">Vô hiệu</span><% } %>
+                <div class="t-sub"><%= u.email %></div>
+              </td>
+              <td><span class="pill <%= u.role === 'admin' ? 'bad' : (u.role === 'editor' ? 'warn' : 'ok') %>"><%= ROLES[u.role].label %></span></td>
+              <td class="small"><%= u.post_count %></td>
+              <td class="small muted"><%= u.last_login_at ? U.formatDateTimeVN(u.last_login_at) : 'Chưa từng' %></td>
+              <td class="actions">
+                <button class="btn btn-sm" type="button" data-form="#user-form"
+                        data-edit='<%- JSON.stringify({id:u.id,name:u.name,email:u.email,role:u.role,bio:u.bio,active:!!u.active}) %>'>Sửa</button>
+                <% if (u.id !== user.id) { %>
+                  <form method="post" action="/admin/users/<%= u.id %>/delete" style="display:inline"
+                        data-confirm="Xoá tài khoản này? Bài viết của họ sẽ giữ lại nhưng mất thông tin tác giả.">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <button class="btn btn-sm btn-danger" type="submit">Xoá</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Thêm / sửa tài khoản</h2>
+    <form method="post" action="/admin/users/save" id="user-form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="id" value="">
+      <div class="field">
+        <label for="u-name">Họ và tên *</label>
+        <input type="text" name="name" id="u-name" required placeholder="Nguyễn Văn A">
+      </div>
+      <div class="field">
+        <label for="u-email">Email *</label>
+        <input type="email" name="email" id="u-email" required placeholder="ten@seaphony.vn">
+      </div>
+      <div class="field">
+        <label for="u-role">Vai trò *</label>
+        <select name="role" id="u-role">
+          <% Object.keys(ROLES).forEach(function(r){ %>
+            <option value="<%= r %>"><%= ROLES[r].label %></option>
+          <% }) %>
+        </select>
+        <div class="help" id="role-desc"><%= ROLES.author.desc %></div>
+      </div>
+      <div class="field">
+        <label for="u-pass">Mật khẩu <span class="counter">để trống nếu không đổi</span></label>
+        <input type="text" name="password" id="u-pass" placeholder="Tối thiểu 8 ký tự, có chữ hoa, chữ thường và số" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label for="u-bio">Giới thiệu (hiển thị ở cuối bài viết)</label>
+        <textarea name="bio" id="u-bio" rows="3"></textarea>
+      </div>
+      <div class="check"><input type="checkbox" name="active" id="u-active" value="1" checked><label for="u-active">Cho phép đăng nhập</label></div>
+      <div class="row">
+        <button class="btn btn-gold" type="submit">Lưu tài khoản</button>
+        <button class="btn btn-sm btn-cancel" type="button" style="display:none">Huỷ sửa</button>
+      </div>
+      <p class="help mt">Đổi mật khẩu sẽ đăng xuất mọi phiên hiện có của tài khoản đó.</p>
+    </form>
+  </div>
+</div>
+
+<div class="card mt">
+  <h2>Ma trận phân quyền</h2>
+  <div class="table-wrap">
+    <table class="perm-table">
+      <thead>
+        <tr>
+          <th>Quyền</th>
+          <% Object.keys(ROLES).forEach(function(r){ %><th style="text-align:center"><%= ROLES[r].label %></th><% }) %>
+        </tr>
+      </thead>
+      <tbody>
+        <% Object.keys(permissions).forEach(function(p){ %>
+          <tr>
+            <td><code class="k"><%= p %></code></td>
+            <% Object.keys(ROLES).forEach(function(r){ %>
+              <td class="<%= permissions[p].indexOf(r) >= 0 ? 'yes' : 'no' %>"><%= permissions[p].indexOf(r) >= 0 ? '✓' : '·' %></td>
+            <% }) %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid g4 mt">
+    <% Object.keys(ROLES).forEach(function(r){ %>
+      <div class="stat"><b style="font-size:1rem"><%= ROLES[r].label %></b><small><%= ROLES[r].desc %></small></div>
+    <% }) %>
+  </div>
+  <p class="help mt">Ngoài ma trận trên, tác giả chỉ được sửa/xoá bài của chính mình; biên tập viên và quản trị viên được thao tác trên mọi bài.</p>
+</div>
+
+<script>
+  (function () {
+    var descs = <%- JSON.stringify(Object.keys(ROLES).reduce(function(a,k){a[k]=ROLES[k].desc;return a},{})) %>;
+    var sel = document.getElementById('u-role');
+    sel.addEventListener('change', function () {
+      document.getElementById('role-desc').textContent = descs[sel.value] || '';
+    });
+  })();
+</script>
+
+<%- include("partials/footer") %>

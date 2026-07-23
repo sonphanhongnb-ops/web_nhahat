@@ -1,0 +1,88 @@
+<%- include("partials/header") %>
+
+<div class="grid g3 mb">
+  <div class="stat"><b><%= summary.n %></b><span>Đơn hợp lệ</span></div>
+  <div class="stat"><b><%= summary.seats %></b><span>Ghế đã bán</span></div>
+  <div class="stat"><b><%= U.vnd(summary.revenue) %></b><span>Giá trị đơn</span></div>
+</div>
+
+<div class="card">
+  <div class="spread mb">
+    <div class="filters" style="margin:0">
+      <form method="get" action="/admin/bookings">
+        <input type="search" name="q" value="<%= search %>" placeholder="Mã đơn, tên, email, điện thoại…">
+        <select name="status">
+          <option value="">Mọi trạng thái</option>
+          <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Chờ xác nhận</option>
+          <option value="confirmed" <%= status === 'confirmed' ? 'selected' : '' %>>Đã xác nhận</option>
+          <option value="cancelled" <%= status === 'cancelled' ? 'selected' : '' %>>Đã huỷ</option>
+        </select>
+        <button class="btn btn-sm" type="submit">Lọc</button>
+      </form>
+    </div>
+    <a class="btn btn-sm" href="/admin/bookings/export.csv">⤓ Xuất CSV</a>
+  </div>
+
+  <% if (!bookings.length) { %>
+    <div class="empty">Chưa có đơn đặt vé nào.</div>
+  <% } else { %>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Mã</th><th>Đêm diễn</th><th>Khách hàng</th><th>Ghế</th><th>Tổng tiền</th><th>Thời gian</th><th>Trạng thái</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% bookings.forEach(function(b){ %>
+          <tr>
+            <td><code class="k"><%= b.code %></code></td>
+            <td class="small"><%= b.show_title || '—' %><div class="t-sub"><%= U.formatDateVN(b.show_date) %></div></td>
+            <td class="small">
+              <b><%= b.name %></b>
+              <div class="t-sub"><%= b.email %> · <%= b.phone %></div>
+            </td>
+            <td class="small">
+              <%= b.seat_count %>
+              <div class="t-sub"><%= b.seatList.map(function(s){ return s.zone + '·' + s.row + s.num }).join(', ') %></div>
+            </td>
+            <td class="small"><%= U.vnd(b.total) %></td>
+            <td class="small muted"><%= U.formatDateTimeVN(b.created_at) %></td>
+            <td>
+              <span class="pill <%= b.status === 'confirmed' ? 'ok' : (b.status === 'cancelled' ? 'bad' : 'warn') %>">
+                <%= b.status === 'confirmed' ? 'Đã xác nhận' : (b.status === 'cancelled' ? 'Đã huỷ' : 'Chờ xác nhận') %>
+              </span>
+            </td>
+            <td class="actions">
+              <% if (can('booking.manage')) { %>
+                <% if (b.status !== 'confirmed') { %>
+                  <form method="post" action="/admin/bookings/<%= b.id %>/status" style="display:inline">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="status" value="confirmed">
+                    <button class="btn btn-sm btn-gold" type="submit">Xác nhận</button>
+                  </form>
+                <% } %>
+                <% if (b.status !== 'cancelled') { %>
+                  <form method="post" action="/admin/bookings/<%= b.id %>/status" style="display:inline" data-confirm="Huỷ đơn này? Ghế sẽ được mở lại.">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="status" value="cancelled">
+                    <button class="btn btn-sm btn-danger" type="submit">Huỷ</button>
+                  </form>
+                <% } %>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+
+  <% if (pg.pages > 1) { %>
+    <nav class="pager">
+      <% for (var i = 1; i <= pg.pages; i++) { %>
+        <a href="?page=<%= i %><%= status ? '&status=' + status : '' %>" class="<%= i === pg.page ? 'on' : '' %>"><%= i %></a>
+      <% } %>
+    </nav>
+  <% } %>
+</div>
+
+<%- include("partials/footer") %>

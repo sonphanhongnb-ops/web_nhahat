@@ -1,0 +1,53 @@
+<%- include("partials/header") %>
+
+<div class="grid g2">
+  <div class="card">
+    <h2>Danh sách thẻ (<%= tags.length %>)</h2>
+    <% if (!tags.length) { %><div class="empty">Chưa có thẻ nào. Thẻ được tạo tự động khi bạn nhập vào bài viết.</div><% } %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Thẻ</th><th>Đường dẫn</th><th>Bài</th><th></th></tr></thead>
+        <tbody>
+          <% tags.forEach(function(t){ %>
+            <tr>
+              <td><b class="t-title">#<%= t.name %></b></td>
+              <td class="small muted">/tag/<%= t.slug %></td>
+              <td class="small"><%= t.post_count %></td>
+              <td class="actions">
+                <button class="btn btn-sm" type="button" data-form="#tag-form"
+                        data-edit='<%- JSON.stringify({id:t.id,name:t.name,slug:t.slug}) %>'>Sửa</button>
+                <form method="post" action="/admin/tags/<%= t.id %>/delete" style="display:inline" data-confirm="Xoá thẻ này?">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button class="btn btn-sm btn-danger" type="submit">Xoá</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Thêm / sửa thẻ</h2>
+    <form method="post" action="/admin/tags/save" id="tag-form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="id" value="">
+      <div class="field">
+        <label for="t-name">Tên thẻ *</label>
+        <input type="text" name="name" id="t-name" required placeholder="cồng chiêng">
+      </div>
+      <div class="field">
+        <label for="t-slug">Đường dẫn</label>
+        <input type="text" name="slug" id="t-slug" placeholder="Tự sinh nếu để trống">
+      </div>
+      <div class="row">
+        <button class="btn btn-gold" type="submit">Lưu thẻ</button>
+        <button class="btn btn-sm btn-cancel" type="button" style="display:none">Huỷ sửa</button>
+      </div>
+      <p class="help mt">Thẻ có từ 2 bài trở lên mới được đưa vào sitemap, tránh tạo trang nội dung mỏng ảnh hưởng SEO.</p>
+    </form>
+  </div>
+</div>
+
+<%- include("partials/footer") %>

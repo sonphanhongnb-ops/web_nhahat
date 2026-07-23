@@ -1,0 +1,68 @@
+<%- include("partials/header") %>
+
+<div class="grid g2">
+  <div class="card">
+    <h2>Thông tin cá nhân</h2>
+    <form method="post" action="/admin/profile">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" value="<%= user.email %>" disabled>
+        <div class="help">Chỉ quản trị viên mới đổi được email đăng nhập.</div>
+      </div>
+      <div class="field">
+        <label>Vai trò</label>
+        <input type="text" value="<%= ROLES[user.role].label %>" disabled>
+        <div class="help"><%= ROLES[user.role].desc %></div>
+      </div>
+      <div class="field"><label for="p-name">Họ và tên</label><input type="text" name="name" id="p-name" value="<%= user.name %>" required></div>
+      <div class="field">
+        <label for="p-bio">Giới thiệu tác giả</label>
+        <textarea name="bio" id="p-bio" rows="4"><%= user.bio %></textarea>
+        <div class="help">Hiển thị trong khung tác giả ở cuối mỗi bài viết.</div>
+      </div>
+
+      <h2 class="mt">Đổi mật khẩu</h2>
+      <div class="field"><label for="p-cur">Mật khẩu hiện tại</label><input type="password" name="current_password" id="p-cur" autocomplete="current-password"></div>
+      <div class="field">
+        <label for="p-new">Mật khẩu mới</label>
+        <input type="password" name="new_password" id="p-new" autocomplete="new-password">
+        <div class="help">Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và số. Để trống nếu không đổi.</div>
+      </div>
+
+      <button class="btn btn-gold" type="submit">Lưu thay đổi</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Phiên đăng nhập (<%= sessions.length %>)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Thiết bị</th><th>IP</th><th>Bắt đầu</th><th></th></tr></thead>
+        <tbody>
+          <% sessions.forEach(function(s){ %>
+            <tr>
+              <td class="small" style="max-width:280px">
+                <%= (s.user_agent || 'Không rõ').slice(0, 70) %>
+                <% if (s.id === session.id) { %><span class="pill ok">Phiên hiện tại</span><% } %>
+              </td>
+              <td class="small muted"><%= s.ip %></td>
+              <td class="small muted"><%= U.formatDateTimeVN(s.created_at) %></td>
+              <td class="actions">
+                <% if (s.id !== session.id) { %>
+                  <form method="post" action="/admin/profile/sessions/<%= s.id %>/revoke" style="display:inline">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <button class="btn btn-sm btn-danger" type="submit">Thu hồi</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <p class="help mt">Phiên đăng nhập tự hết hạn sau 14 ngày. Đổi mật khẩu sẽ thu hồi toàn bộ phiên khác.</p>
+  </div>
+</div>
+
+<%- include("partials/footer") %>

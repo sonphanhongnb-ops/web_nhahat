@@ -1,0 +1,99 @@
+<%- include("partials/header") %>
+
+<div class="spread mb">
+  <div class="tabs" style="margin:0;border:none">
+    <a href="/admin/posts?type=<%= type %>" class="<%= !query.status ? 'on' : '' %>">Tất cả <b><%= counts.all %></b></a>
+    <a href="/admin/posts?type=<%= type %>&status=published" class="<%= query.status === 'published' ? 'on' : '' %>">Đã đăng <b><%= counts.published %></b></a>
+    <a href="/admin/posts?type=<%= type %>&status=review" class="<%= query.status === 'review' ? 'on' : '' %>">Chờ duyệt <b><%= counts.review %></b></a>
+    <a href="/admin/posts?type=<%= type %>&status=draft" class="<%= query.status === 'draft' ? 'on' : '' %>">Nháp <b><%= counts.draft %></b></a>
+    <a href="/admin/posts?type=<%= type %>&status=archived" class="<%= query.status === 'archived' ? 'on' : '' %>">Lưu trữ <b><%= counts.archived %></b></a>
+  </div>
+  <a class="btn btn-gold" href="/admin/posts/new?type=<%= type %>">✎ <%= type === 'page' ? 'Tạo trang mới' : 'Viết bài mới' %></a>
+</div>
+
+<div class="card">
+  <div class="filters">
+    <form method="get" action="/admin/posts">
+      <input type="hidden" name="type" value="<%= type %>">
+      <% if (query.status) { %><input type="hidden" name="status" value="<%= query.status %>"><% } %>
+      <input type="search" name="q" value="<%= query.q || '' %>" placeholder="Tìm theo tiêu đề, nội dung…">
+      <select name="category">
+        <option value="">Mọi chuyên mục</option>
+        <% categories.forEach(function(c){ %>
+          <option value="<%= c.id %>" <%= String(query.category) === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
+        <% }) %>
+      </select>
+      <button class="btn btn-sm" type="submit">Lọc</button>
+      <% if (query.q || query.category) { %><a class="btn btn-sm" href="/admin/posts?type=<%= type %>">Xoá lọc</a><% } %>
+    </form>
+  </div>
+
+  <% if (!posts.length) { %>
+    <div class="empty">Không có nội dung nào khớp bộ lọc.</div>
+  <% } else { %>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tiêu đề</th><th>Chuyên mục</th><th>Tác giả</th>
+          <th>Trạng thái</th><th>SEO</th><th>Xem</th><th>Cập nhật</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% posts.forEach(function(p){ %>
+          <tr>
+            <td style="min-width:280px">
+              <a class="t-title" href="/admin/posts/<%= p.id %>/edit"><%= p.title %></a>
+              <% if (p.featured) { %> <span class="pill warn">Nổi bật</span><% } %>
+              <% if (p.noindex) { %> <span class="pill bad">noindex</span><% } %>
+              <div class="t-sub">/<%= p.type === 'page' ? 'trang' : 'tin-tuc' %>/<%= p.slug %></div>
+            </td>
+            <td class="small"><%= p.category_name || '—' %></td>
+            <td class="small muted"><%= p.author_name || '—' %></td>
+            <td>
+              <span class="pill <%= p.status === 'published' ? 'ok' : (p.status === 'review' ? 'warn' : 'draft') %>">
+                <%= p.status === 'published' ? 'Đã đăng' : (p.status === 'review' ? 'Chờ duyệt' : (p.status === 'draft' ? 'Nháp' : 'Lưu trữ')) %>
+              </span>
+            </td>
+            <td><span class="pill <%= p.seo_score >= 70 ? 'ok' : (p.seo_score >= 50 ? 'warn' : 'bad') %>"><%= p.seo_score %></span></td>
+            <td class="small muted"><%= p.views %></td>
+            <td class="small muted"><%= U.formatDateVN(p.updated_at) %></td>
+            <td class="actions">
+              <a class="btn btn-sm" href="<%= p.url %><%= p.status !== 'published' ? '?preview=1' : '' %>" target="_blank" rel="noopener">Xem</a>
+              <% if (p.status !== 'published' && can('post.publish')) { %>
+                <form method="post" action="/admin/posts/<%= p.id %>/status" style="display:inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="status" value="published">
+                  <button class="btn btn-sm btn-gold" type="submit">Đăng</button>
+                </form>
+              <% } else if (p.status === 'published') { %>
+                <form method="post" action="/admin/posts/<%= p.id %>/status" style="display:inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="status" value="draft">
+                  <button class="btn btn-sm" type="submit">Gỡ xuống</button>
+                </form>
+              <% } %>
+              <form method="post" action="/admin/posts/<%= p.id %>/delete" style="display:inline"
+                    onsubmit="return confirm('Xoá vĩnh viễn nội dung này? Thao tác không thể hoàn tác.')">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button class="btn btn-sm btn-danger" type="submit">Xoá</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+
+  <% if (pg.pages > 1) { %>
+    <nav class="pager">
+      <% for (var i = 1; i <= pg.pages; i++) { %>
+        <a href="?type=<%= type %>&page=<%= i %><%= query.status ? '&status=' + query.status : '' %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %>"
+           class="<%= i === pg.page ? 'on' : '' %>"><%= i %></a>
+      <% } %>
+    </nav>
+  <% } %>
+</div>
+
+<%- include("partials/footer") %>

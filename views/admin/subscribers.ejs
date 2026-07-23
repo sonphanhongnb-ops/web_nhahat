@@ -1,0 +1,42 @@
+<%- include("partials/header") %>
+
+<div class="card">
+  <div class="spread mb">
+    <h2 style="margin:0">Người đăng ký nhận tin (<%= pg.total %>)</h2>
+    <a class="btn btn-sm" href="/admin/subscribers/export.csv">⤓ Xuất CSV</a>
+  </div>
+
+  <% if (!subscribers.length) { %>
+    <div class="empty">Chưa có ai đăng ký nhận bản tin.</div>
+  <% } else { %>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Email</th><th>Nguồn</th><th>Trạng thái</th><th>Ngày đăng ký</th><th></th></tr></thead>
+      <tbody>
+        <% subscribers.forEach(function(s){ %>
+          <tr>
+            <td><b><%= s.email %></b></td>
+            <td class="small muted"><%= s.source %></td>
+            <td><span class="pill <%= s.active ? 'ok' : 'draft' %>"><%= s.active ? 'Đang nhận' : 'Đã huỷ' %></span></td>
+            <td class="small muted"><%= U.formatDateTimeVN(s.created_at) %></td>
+            <td class="actions">
+              <form method="post" action="/admin/subscribers/<%= s.id %>/delete" data-confirm="Xoá người đăng ký này?" style="display:inline">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button class="btn btn-sm btn-danger" type="submit">Xoá</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+
+  <% if (pg.pages > 1) { %>
+    <nav class="pager">
+      <% for (var i = 1; i <= pg.pages; i++) { %><a href="?page=<%= i %>" class="<%= i === pg.page ? 'on' : '' %>"><%= i %></a><% } %>
+    </nav>
+  <% } %>
+</div>
+
+<%- include("partials/footer") %>

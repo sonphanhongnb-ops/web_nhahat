@@ -1,0 +1,106 @@
+<%- include("partials/header") %>
+
+<div class="grid g4 mb">
+  <div class="stat"><b><%= audit.avg %>/100</b><span>Điểm SEO trung bình</span><small><%= audit.total %> nội dung đã xuất bản</small></div>
+  <div class="stat"><b style="color:<%= audit.noMetaDesc ? 'var(--rose)' : 'var(--moss)' %>"><%= audit.noMetaDesc %></b><span>Thiếu mô tả meta</span></div>
+  <div class="stat"><b style="color:<%= audit.noCover ? 'var(--gold)' : 'var(--moss)' %>"><%= audit.noCover %></b><span>Thiếu ảnh đại diện</span></div>
+  <div class="stat"><b style="color:<%= audit.thin ? 'var(--gold)' : 'var(--moss)' %>"><%= audit.thin %></b><span>Nội dung mỏng (&lt; ~200 từ)</span></div>
+</div>
+
+<div class="grid g2">
+  <div class="card">
+    <h2>Công cụ kiểm tra</h2>
+    <div class="row">
+      <a class="btn btn-sm" href="/sitemap.xml" target="_blank" rel="noopener">Sitemap index ↗</a>
+      <a class="btn btn-sm" href="/sitemap-posts.xml" target="_blank" rel="noopener">Sitemap bài viết ↗</a>
+      <a class="btn btn-sm" href="/robots.txt" target="_blank" rel="noopener">robots.txt ↗</a>
+      <a class="btn btn-sm" href="/rss.xml" target="_blank" rel="noopener">RSS ↗</a>
+    </div>
+    <form method="post" action="/admin/seo/rescan" class="mt">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="btn btn-gold btn-sm" type="submit">Tính lại điểm SEO toàn bộ</button>
+    </form>
+    <p class="help mt">
+      Sau khi đưa website lên tên miền thật, hãy khai báo <code class="k"><%= siteUrl %>/sitemap.xml</code>
+      trong Google Search Console và Bing Webmaster Tools. Mã xác minh chủ sở hữu được nhập ở mục
+      <a href="/admin/settings" style="color:var(--gold)">Cấu hình</a>.
+    </p>
+    <p class="help">
+      Kiểm tra dữ liệu có cấu trúc:
+      <a href="https://search.google.com/test/rich-results" target="_blank" rel="noopener nofollow" style="color:var(--gold)">Rich Results Test</a> ·
+      <a href="https://validator.schema.org/" target="_blank" rel="noopener nofollow" style="color:var(--gold)">Schema Validator</a>
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Chuyển hướng 301</h2>
+    <form method="post" action="/admin/seo/redirects">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="grid g2" style="gap:.8rem">
+        <div class="field"><label for="r-from">Từ đường dẫn</label><input type="text" name="from_path" id="r-from" placeholder="/tin-tuc/duong-dan-cu" required></div>
+        <div class="field"><label for="r-to">Tới</label><input type="text" name="to_path" id="r-to" placeholder="/tin-tuc/duong-dan-moi" required></div>
+      </div>
+      <div class="row">
+        <select name="code" style="width:auto"><option value="301">301 — vĩnh viễn</option><option value="302">302 — tạm thời</option></select>
+        <button class="btn btn-sm btn-gold" type="submit">Thêm chuyển hướng</button>
+      </div>
+    </form>
+    <p class="help mt">Khi bạn đổi slug của một bài đã xuất bản, hệ thống tự tạo chuyển hướng 301 để không mất thứ hạng.</p>
+    <% if (redirects.length) { %>
+      <div class="table-wrap mt">
+        <table>
+          <thead><tr><th>Từ</th><th>Tới</th><th>Mã</th><th>Lượt</th><th></th></tr></thead>
+          <tbody>
+            <% redirects.forEach(function(r){ %>
+              <tr>
+                <td class="small"><%= r.from_path %></td>
+                <td class="small muted"><%= r.to_path %></td>
+                <td class="small"><%= r.code %></td>
+                <td class="small"><%= r.hits %></td>
+                <td class="actions">
+                  <form method="post" action="/admin/seo/redirects/<%= r.id %>/delete" style="display:inline">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <button class="btn btn-sm btn-danger" type="submit">Xoá</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<div class="card mt">
+  <h2>Bảng điểm SEO từng nội dung (thấp nhất trước)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tiêu đề</th><th>Điểm</th><th>Từ khoá</th><th>Mô tả meta</th><th>Trạng thái</th><th>Xem</th><th></th></tr></thead>
+      <tbody>
+        <% rows.forEach(function(p){ %>
+          <tr>
+            <td>
+              <a class="t-title" href="/admin/posts/<%= p.id %>/edit"><%= p.title %></a>
+              <div class="t-sub">/<%= p.type === 'page' ? 'trang' : 'tin-tuc' %>/<%= p.slug %></div>
+            </td>
+            <td style="min-width:110px">
+              <span class="pill <%= p.seo_score >= 70 ? 'ok' : (p.seo_score >= 50 ? 'warn' : 'bad') %>"><%= p.seo_score %></span>
+              <div class="bar"><i style="width:<%= p.seo_score %>%;background:<%= p.seo_score >= 70 ? 'var(--moss)' : (p.seo_score >= 50 ? 'var(--gold)' : 'var(--rose)') %>"></i></div>
+            </td>
+            <td class="small <%= p.focus_keyword ? '' : 'muted' %>"><%= p.focus_keyword || '— chưa đặt —' %></td>
+            <td class="small"><%= p.meta_desc ? p.meta_desc.length + ' ký tự' : '⚠ thiếu' %></td>
+            <td>
+              <span class="pill <%= p.status === 'published' ? 'ok' : 'draft' %>"><%= p.status %></span>
+              <% if (p.noindex) { %><span class="pill bad">noindex</span><% } %>
+            </td>
+            <td class="small muted"><%= p.views %></td>
+            <td class="actions"><a class="btn btn-sm" href="/admin/posts/<%= p.id %>/edit">Tối ưu</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include("partials/footer") %>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title><%= title %> · Quản trị <%= settings.site_name %></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap&subset=vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+<meta name="csrf-token" content="<%= csrf %>">
+</head>
+<body>
+<div class="adm">
+
+  <!-- ============ THANH BÊN ============ -->
+  <aside class="adm-side">
+    <a class="adm-brand" href="/admin">
+      <b>THỨC</b><span>Quản trị nội dung</span>
+    </a>
+
+    <nav class="adm-nav">
+      <a href="/admin" class="<%= adminPath === '/' ? 'on' : '' %>">
+        <i>◱</i> Bảng điều khiển
+      </a>
+
+      <div class="adm-nav-group">Nội dung</div>
+      <a href="/admin/posts" class="<%= adminPath.indexOf('/posts') === 0 && query.type !== 'page' ? 'on' : '' %>">
+        <i>✎</i> Bài viết
+      </a>
+      <% if (can('page.manage')) { %>
+      <a href="/admin/posts?type=page" class="<%= adminPath.indexOf('/posts') === 0 && query.type === 'page' ? 'on' : '' %>">
+        <i>▤</i> Trang nội dung
+      </a>
+      <% } %>
+      <% if (can('category.manage')) { %>
+      <a href="/admin/categories" class="<%= adminPath.indexOf('/categories') === 0 ? 'on' : '' %>"><i>❏</i> Chuyên mục</a>
+      <% } %>
+      <% if (can('tag.manage')) { %>
+      <a href="/admin/tags" class="<%= adminPath.indexOf('/tags') === 0 ? 'on' : '' %>"><i>#</i> Thẻ</a>
+      <% } %>
+      <a href="/admin/media" class="<%= adminPath.indexOf('/media') === 0 ? 'on' : '' %>"><i>▧</i> Thư viện ảnh</a>
+
+      <% if (can('seo.manage')) { %>
+      <div class="adm-nav-group">Tối ưu SEO</div>
+      <a href="/admin/seo" class="<%= adminPath.indexOf('/seo') === 0 ? 'on' : '' %>"><i>↗</i> Trung tâm SEO</a>
+      <% } %>
+
+      <% if (can('show.manage') || can('booking.view')) { %>
+      <div class="adm-nav-group">Nhà hát</div>
+      <% } %>
+      <% if (can('show.manage')) { %>
+      <a href="/admin/shows" class="<%= adminPath.indexOf('/shows') === 0 ? 'on' : '' %>"><i>♪</i> Lịch diễn</a>
+      <% } %>
+      <% if (can('booking.view')) { %>
+      <a href="/admin/bookings" class="<%= adminPath.indexOf('/bookings') === 0 ? 'on' : '' %>"><i>🎫</i> Đơn đặt vé</a>
+      <% } %>
+      <% if (can('subscriber.view')) { %>
+      <a href="/admin/subscribers" class="<%= adminPath.indexOf('/subscribers') === 0 ? 'on' : '' %>"><i>✉</i> Bản tin</a>
+      <a href="/admin/contacts" class="<%= adminPath.indexOf('/contacts') === 0 ? 'on' : '' %>"><i>☎</i> Liên hệ</a>
+      <% } %>
+
+      <% if (can('user.manage') || can('settings.manage')) { %>
+      <div class="adm-nav-group">Hệ thống</div>
+      <% } %>
+      <% if (can('user.manage')) { %>
+      <a href="/admin/users" class="<%= adminPath.indexOf('/users') === 0 ? 'on' : '' %>"><i>◍</i> Người dùng &amp; quyền</a>
+      <% } %>
+      <% if (can('settings.manage')) { %>
+      <a href="/admin/settings" class="<%= adminPath.indexOf('/settings') === 0 ? 'on' : '' %>"><i>⚙</i> Cấu hình</a>
+      <% } %>
+      <% if (can('log.view')) { %>
+      <a href="/admin/logs" class="<%= adminPath.indexOf('/logs') === 0 ? 'on' : '' %>"><i>≡</i> Nhật ký</a>
+      <% } %>
+    </nav>
+
+    <div class="adm-side-foot">
+      <a href="/" target="_blank" rel="noopener">↗ Xem website</a>
+    </div>
+  </aside>
+
+  <!-- ============ NỘI DUNG ============ -->
+  <div class="adm-main">
+    <header class="adm-top">
+      <div class="adm-top-l">
+        <button class="adm-burger" id="adm-burger" aria-label="Mở menu">☰</button>
+        <h1><%= title %></h1>
+      </div>
+      <div class="adm-top-r">
+        <% if (pendingCount > 0 && can('post.publish.any')) { %>
+          <a class="pill warn" href="/admin/posts?status=review"><%= pendingCount %> bài chờ duyệt</a>
+        <% } %>
+        <div class="adm-user">
+          <a href="/admin/profile">
+            <b><%= user.name %></b>
+            <span><%= ROLES[user.role].label %></span>
+          </a>
+          <form method="post" action="/dang-xuat" style="display:inline">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="link-btn" type="submit">Đăng xuất</button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <main class="adm-body">
+      <% if (flash) { %>
+        <div class="alert <%= flash.type === 'error' ? 'error' : (flash.type === 'warn' ? 'warn' : 'success') %>"><%= flash.message %></div>
+      <% } %>

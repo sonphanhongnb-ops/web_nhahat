@@ -1,0 +1,50 @@
+<!-- NAV -->
+<%
+  // Trên trang chủ dùng liên kết neo; trang khác quay về trang chủ kèm neo
+  var home = (typeof isHome !== 'undefined' && isHome) ? '' : '/';
+  var _p = (typeof currentPath !== 'undefined' ? currentPath : '/');
+  function langHref(l){ return _p + '?lang=' + l; }
+%>
+<header id="head">
+  <div class="wrap nav">
+    <a class="brand" href="/" aria-label="<%= t('Trang chủ', 'Home') %> <%= settings.site_name %>"><b>THỨC</b><span>by SEASOUND</span></a>
+    <nav class="navlinks" aria-label="<%= t('Điều hướng chính', 'Main navigation') %>">
+      <a href="<%= home %>#gioi-thieu"><%= t('Về THỨC', 'About') %></a>
+      <a href="<%= home %>#khong-gian"><%= t('Không gian', 'Venue') %></a>
+      <a href="<%= home %>#nghe-si">SEASOUND</a>
+      <a href="<%= home %>#thu-vien"><%= t('Thư viện', 'Gallery') %></a>
+      <a href="<%= home %>#lich-dien"><%= t('Lịch diễn', 'Schedule') %></a>
+      <a href="/tin-tuc"><%= t('Tin tức', 'News') %></a>
+      <span class="lang-toggle" aria-label="Language">
+        <a href="<%= langHref('vi') %>" class="<%= lang === 'vi' ? 'on' : '' %>" hreflang="vi">VI</a><span class="sep">/</span><a href="<%= langHref('en') %>" class="<%= lang === 'en' ? 'on' : '' %>" hreflang="en">EN</a>
+      </span>
+      <a class="btn btn-gold" href="<%= home %>#lich-dien"><%= t('Đặt vé', 'Reserve') %></a>
+    </nav>
+    <button class="burger" id="burger" aria-label="<%= t('Mở menu', 'Open menu') %>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- DRAWER -->
+<div class="drawer" id="drawer" aria-hidden="true">
+  <button class="close" id="close" aria-label="<%= t('Đóng menu', 'Close menu') %>">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="<%= home %>#gioi-thieu"><%= t('Về THỨC', 'About') %></a>
+  <a href="<%= home %>#chuong"><%= t('Vở diễn', 'The work') %></a>
+  <a href="<%= home %>#khong-gian"><%= t('Không gian', 'Venue') %></a>
+  <a href="<%= home %>#nghe-si">SEASOUND</a>
+  <a href="<%= home %>#thu-vien"><%= t('Thư viện ảnh', 'Gallery') %></a>
+  <a href="<%= home %>#lich-dien"><%= t('Lịch diễn & Giá vé', 'Schedule & Prices') %></a>
+  <a href="/tin-tuc"><%= t('Tin tức', 'News') %></a>
+  <a href="<%= home %>#hoi-dap"><%= t('Hỏi đáp', 'FAQ') %></a>
+  <a href="<%= home %>#ghe-tham"><%= t('Ghé thăm', 'Visit') %></a>
+  <span class="lang-toggle drawer-lang">
+    <a href="<%= langHref('vi') %>" class="<%= lang === 'vi' ? 'on' : '' %>">Tiếng Việt</a>
+    <a href="<%= langHref('en') %>" class="<%= lang === 'en' ? 'on' : '' %>">English</a>
+  </span>
+  <form class="drawer-search" action="/tim-kiem" method="get" role="search">
+    <input type="search" name="q" placeholder="<%= t('Tìm bài viết…', 'Search…') %>" aria-label="<%= t('Tìm kiếm', 'Search') %>">
+  </form>
+</div>

@@ -1,0 +1,16 @@
+<% if (pg.pages > 1) {
+     var sep = baseUrl.indexOf('?') >= 0 ? '&' : '?';
+     var link = function(n){ return n === 1 && baseUrl.indexOf('?') < 0 ? baseUrl : baseUrl + sep + 'page=' + n; };
+     var from = Math.max(1, pg.page - 2), to = Math.min(pg.pages, pg.page + 2);
+%>
+<nav class="pager" aria-label="<%= t('Phân trang', 'Pagination') %>">
+  <% if (pg.hasPrev) { %><a rel="prev" href="<%= link(pg.page - 1) %>"><%= t('← Trước', '← Prev') %></a><% } %>
+  <% if (from > 1) { %><a href="<%= link(1) %>">1</a><% if (from > 2) { %><span class="gap">…</span><% } %><% } %>
+  <% for (var i = from; i <= to; i++) { %>
+    <a href="<%= link(i) %>" class="<%= i === pg.page ? 'on' : '' %>" <%= i === pg.page ? 'aria-current="page"' : '' %>><%= i %></a>
+  <% } %>
+  <% if (to < pg.pages) { %><% if (to < pg.pages - 1) { %><span class="gap">…</span><% } %><a href="<%= link(pg.pages) %>"><%= pg.pages %></a><% } %>
+  <% if (pg.hasNext) { %><a rel="next" href="<%= link(pg.page + 1) %>"><%= t('Sau →', 'Next →') %></a><% } %>
+</nav>
+<p class="pager-info"><%= pg.total %> <%= t('bài viết · trang', 'articles · page') %> <%= pg.page %>/<%= pg.pages %></p>
+<% } %>

@@ -1,0 +1,72 @@
+<%- include("partials/header") %>
+
+<div class="grid g2">
+  <div class="card">
+    <h2>Danh sách chuyên mục</h2>
+    <% if (!categories.length) { %><div class="empty">Chưa có chuyên mục nào.</div><% } %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tên</th><th>Đường dẫn</th><th>Bài</th><th></th></tr></thead>
+        <tbody>
+          <% categories.forEach(function(c){ %>
+            <tr>
+              <td>
+                <b class="t-title"><%= c.name %></b>
+                <% if (c.description) { %><div class="t-sub"><%= c.description.slice(0,70) %></div><% } %>
+              </td>
+              <td class="small muted">/chuyen-muc/<%= c.slug %></td>
+              <td class="small"><%= c.post_count %></td>
+              <td class="actions">
+                <button class="btn btn-sm" type="button" data-form="#cat-form"
+                        data-edit='<%- JSON.stringify({id:c.id,name:c.name,slug:c.slug,description:c.description,meta_title:c.meta_title,meta_desc:c.meta_desc,sort_order:c.sort_order}) %>'>Sửa</button>
+                <form method="post" action="/admin/categories/<%= c.id %>/delete" style="display:inline"
+                      data-confirm="Xoá chuyên mục này? Bài viết trong mục sẽ chuyển về &quot;chưa phân loại&quot;.">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button class="btn btn-sm btn-danger" type="submit">Xoá</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Thêm / sửa chuyên mục</h2>
+    <form method="post" action="/admin/categories/save" id="cat-form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="id" value="">
+      <div class="field">
+        <label for="c-name">Tên chuyên mục *</label>
+        <input type="text" name="name" id="c-name" required placeholder="Nghệ nhân">
+      </div>
+      <div class="field">
+        <label for="c-slug">Đường dẫn</label>
+        <input type="text" name="slug" id="c-slug" placeholder="Để trống sẽ tự sinh từ tên">
+      </div>
+      <div class="field">
+        <label for="c-desc">Mô tả</label>
+        <textarea name="description" id="c-desc" rows="3" placeholder="Mô tả hiển thị trên đầu trang chuyên mục."></textarea>
+      </div>
+      <div class="field">
+        <label for="c-mt">Tiêu đề SEO</label>
+        <input type="text" name="meta_title" id="c-mt" placeholder="Tiêu đề hiển thị trên Google">
+      </div>
+      <div class="field">
+        <label for="c-md">Mô tả meta</label>
+        <textarea name="meta_desc" id="c-md" rows="2" placeholder="140–160 ký tự"></textarea>
+      </div>
+      <div class="field">
+        <label for="c-sort">Thứ tự sắp xếp</label>
+        <input type="number" name="sort_order" id="c-sort" value="0">
+      </div>
+      <div class="row">
+        <button class="btn btn-gold" type="submit">Lưu chuyên mục</button>
+        <button class="btn btn-sm btn-cancel" type="button" style="display:none">Huỷ sửa</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include("partials/footer") %>

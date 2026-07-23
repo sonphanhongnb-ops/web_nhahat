@@ -1,0 +1,88 @@
+<%- include("partials/header") %>
+
+<div class="grid g2">
+  <div class="card">
+    <h2>Lịch diễn (<%= shows.length %>)</h2>
+    <% if (!shows.length) { %><div class="empty">Chưa có đêm diễn nào.</div><% } %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Chương trình</th><th>Ngày</th><th>Giá vé</th><th>Trạng thái</th><th></th></tr></thead>
+        <tbody>
+          <% shows.forEach(function(s){ %>
+            <tr>
+              <td>
+                <b class="t-title"><%= s.title %></b>
+                <div class="t-sub"><%= s.subtitle %></div>
+              </td>
+              <td class="small"><%= s.dateLabel %><div class="t-sub"><%= s.show_time %></div></td>
+              <td class="small">A: <%= U.vnd(s.price_a) %><div class="t-sub">B: <%= U.vnd(s.price_b) %></div></td>
+              <td>
+                <span class="pill <%= s.on_sale ? 'ok' : 'warn' %>"><%= s.on_sale ? 'Còn vé' : 'Sắp mở bán' %></span>
+                <% if (!s.active) { %><span class="pill bad">Ẩn</span><% } %>
+              </td>
+              <td class="actions">
+                <button class="btn btn-sm" type="button" data-form="#show-form"
+                        data-edit='<%- JSON.stringify({id:s.id,title:s.title,slug:s.slug,subtitle:s.subtitle,description:s.description,show_date:s.show_date,show_time:s.show_time,venue:s.venue,price_a:s.price_a,price_b:s.price_b,on_sale:!!s.on_sale,active:!!s.active}) %>'>Sửa</button>
+                <form method="post" action="/admin/shows/<%= s.id %>/delete" style="display:inline" data-confirm="Xoá đêm diễn này?">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button class="btn btn-sm btn-danger" type="submit">Xoá</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Thêm / sửa đêm diễn</h2>
+    <form method="post" action="/admin/shows/save" id="show-form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="id" value="">
+      <div class="field">
+        <label for="s-title">Tên chương trình *</label>
+        <input type="text" name="title" id="s-title" required placeholder="Đêm vô thức bản địa">
+      </div>
+      <div class="field">
+        <label for="s-sub">Phụ đề</label>
+        <input type="text" name="subtitle" id="s-sub" placeholder="Chương trình mở màn">
+      </div>
+      <div class="grid g2" style="gap:.9rem">
+        <div class="field">
+          <label for="s-date">Ngày diễn *</label>
+          <input type="date" name="show_date" id="s-date" required>
+        </div>
+        <div class="field">
+          <label for="s-time">Giờ diễn</label>
+          <input type="time" name="show_time" id="s-time" value="20:00">
+        </div>
+        <div class="field">
+          <label for="s-pa">Giá Khán đài A (đ)</label>
+          <input type="number" name="price_a" id="s-pa" value="600000" step="10000">
+        </div>
+        <div class="field">
+          <label for="s-pb">Giá Khán đài B1/B2 (đ)</label>
+          <input type="number" name="price_b" id="s-pb" value="400000" step="10000">
+        </div>
+      </div>
+      <div class="field">
+        <label for="s-venue">Địa điểm</label>
+        <input type="text" name="venue" id="s-venue" value="Nhà hát Seaphony">
+      </div>
+      <div class="field">
+        <label for="s-desc">Mô tả (dùng cho dữ liệu sự kiện Schema.org)</label>
+        <textarea name="description" id="s-desc" rows="3"></textarea>
+      </div>
+      <div class="check"><input type="checkbox" name="on_sale" id="s-sale" value="1" checked><label for="s-sale">Đang mở bán vé</label></div>
+      <div class="check"><input type="checkbox" name="active" id="s-active" value="1" checked><label for="s-active">Hiển thị trên website</label></div>
+      <div class="row">
+        <button class="btn btn-gold" type="submit">Lưu đêm diễn</button>
+        <button class="btn btn-sm btn-cancel" type="button" style="display:none">Huỷ sửa</button>
+      </div>
+      <p class="help mt">Mỗi đêm diễn hiển thị trên trang chủ sẽ tự sinh dữ liệu có cấu trúc <code class="k">TheaterEvent</code> giúp Google hiển thị dạng sự kiện.</p>
+    </form>
+  </div>
+</div>
+
+<%- include("partials/footer") %>

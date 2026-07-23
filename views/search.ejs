@@ -1,0 +1,66 @@
+<%- include("partials/head", { extraCss: '/css/pages.css' }) %>
+<%- include("partials/nav") %>
+
+<main id="top" class="page-main">
+  <section class="page-hero">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/"><%= t('Trang chủ', 'Home') %></a><span>·</span><span aria-current="page"><%= t('Tìm kiếm', 'Search') %></span>
+      </nav>
+      <h1><%= t('Tìm kiếm', 'Search') %></h1>
+      <form class="page-search big" action="/tim-kiem" method="get" role="search">
+        <input type="search" name="q" value="<%= kw %>" placeholder="<%= t('Nhập từ khoá: THỨC, SEASOUND, Alluvium…', 'Type a keyword: THỨC, SEASOUND, Alluvium…') %>" aria-label="<%= t('Từ khoá tìm kiếm', 'Search keyword') %>" autofocus>
+        <button class="btn btn-gold btn-sm" type="submit"><%= t('Tìm kiếm', 'Search') %></button>
+      </form>
+      <% if (kw) { %>
+        <p class="lede"><%= t('Tìm thấy', 'Found') %> <b><%= pg.total %></b> <%= t('kết quả cho', 'results for') %> “<%= kw %>”.</p>
+      <% } else { %>
+        <p class="lede"><%= t('Nhập từ khoá để tìm bài viết về THỨC và SEASOUND.', 'Type a keyword to find articles about THỨC and SEASOUND.') %></p>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap blog-layout">
+      <div>
+        <% if (kw && !posts.length) { %>
+          <p class="hint"><%= t('Không tìm thấy kết quả phù hợp. Thử từ khoá ngắn hơn hoặc bỏ dấu.', 'No matching results. Try a shorter keyword.') %></p>
+        <% } %>
+        <div class="card-grid">
+          <% posts.forEach(function(p){ %>
+            <article class="card">
+              <a class="card-thumb" href="<%= p.url %>"><img src="<%= p.cover_image || '/img/space-1.jpg' %>" alt="<%= p.cover_alt || p.title %>" loading="lazy"></a>
+              <div class="card-body">
+                <div class="card-meta">
+                  <% if (p.category_name) { %><a href="/chuyen-muc/<%= p.category_slug %>"><%= p.category_name %></a><span>·</span><% } %>
+                  <time datetime="<%= p.dateIso %>"><%= p.dateFull %></time>
+                </div>
+                <h2><a href="<%= p.url %>"><%= p.title %></a></h2>
+                <p><%= p.excerpt %></p>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+        <%- include("partials/pagination", { pg: pg, baseUrl: baseUrl }) %>
+      </div>
+
+      <aside class="side">
+        <div class="side-box">
+          <h3><%= t('Chuyên mục', 'Categories') %></h3>
+          <ul class="side-list">
+            <% categories.forEach(function(c){ %><li><a href="/chuyen-muc/<%= c.slug %>"><%= c.name %> <span><%= c.post_count %></span></a></li><% }) %>
+          </ul>
+        </div>
+        <div class="side-box">
+          <h3><%= t('Thẻ phổ biến', 'Popular tags') %></h3>
+          <div class="tag-cloud">
+            <% tags.forEach(function(tg){ %><a href="/tag/<%= tg.slug %>">#<%= tg.name %></a><% }) %>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>
+<%- include("partials/end") %>

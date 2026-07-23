@@ -1,0 +1,339 @@
+<%- include("partials/head") %>
+<%- include("partials/nav") %>
+
+<!-- HERO -->
+<main id="top">
+<section class="hero">
+  <div class="hero-photo" aria-hidden="true" style="background-image:url('/img/hero.jpg')"></div>
+  <div class="hero-canvas" aria-hidden="true"><svg id="facets" preserveAspectRatio="none"></svg></div>
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="hero-vignette" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="hero-eyebrow reveal">
+      <span class="rule"></span>
+      <span class="eyebrow">Alluvium · Hoa Lư · Ninh Bình</span>
+    </div>
+    <h1 class="reveal">THỨC<br><em><%= t('điều chưa bao giờ rời đi.', 'what was never truly gone.') %></em></h1>
+    <p class="lede reveal"><%= t(
+      'Vở diễn đầu tiên của SEASOUND — Dàn Khí Nhạc Bản Địa Đông Nam Á. Sáu mươi phút khí nhạc từ tre, nứa, đồng và da, tại Trung tâm Biểu diễn Alluvium.',
+      'The debut work of SEASOUND — the Southeast Asian Indigenous Music Ensemble. Sixty minutes of instrumental music from bamboo, reed, bronze and leather, at the Alluvium Performing Arts Center.') %></p>
+    <div class="hero-cta reveal">
+      <a class="btn btn-gold" href="#lich-dien"><%= t('Đặt vé', 'Reserve seats') %></a>
+      <a class="btn btn-ghost" href="#gioi-thieu"><%= t('Tìm hiểu thêm', 'Discover') %></a>
+    </div>
+    <div class="hero-stats reveal">
+      <div><b>60′</b><span><%= t('Phút, một mạch', 'Minutes, one breath') %></span></div>
+      <div><b>6–8</b><span><%= t('Tác phẩm khí nhạc', 'Instrumental works') %></span></div>
+      <div><b>4</b><span><%= t('Chất liệu bản địa', 'Indigenous materials') %></span></div>
+      <div><b>0</b><span><%= t('Lời hát', 'Sung words') %></span></div>
+    </div>
+  </div>
+  <div class="scrollcue" aria-hidden="true"><span class="dot"></span><%= t('Cuộn xuống', 'Scroll') %></div>
+</section>
+
+<!-- VỀ THỨC — trình bày dạng thơ (nền tối, chữ sáng, sans-serif, ảnh Alluvium bên cạnh) -->
+<section class="band manifesto vethuc" id="gioi-thieu">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Về THỨC', 'About THỨC') %></span><span class="rule"></span></div>
+    <div class="grid">
+      <div class="reveal">
+        <%
+          var poem = lang === 'en' ? [
+            ['Within each of us, something has never stopped flowing —',
+             'a mother’s voice, the sound of land, a drum from a ceremony long past.'],
+            ['Modern life does not erase it.',
+             'It only buries it.'],
+            ['THỨC is the moment it returns.',
+             'Through bamboo, bronze, and leather — materials that were here before we were born.',
+             'Through music made by those who still know how to listen.'],
+            ['Not to remember.',
+             'But to recognise — what was never truly gone.']
+          ] : [
+            ['Trong mỗi người có một dòng chảy không bao giờ tắt —',
+             'tiếng ru của mẹ, âm thanh của đất, nhịp trống trong một buổi lễ đã lâu.'],
+            ['Cuộc sống hôm nay không xóa đi dòng chảy ấy.',
+             'Nó chỉ lấp đi.'],
+            ['THỨC là khoảnh khắc nó trở về.',
+             'Qua tre, đồng, da — những chất liệu đã ở đây từ trước khi ta sinh ra.',
+             'Qua âm thanh của những người còn nhớ cách lắng nghe.'],
+            ['Không phải để nhớ lại.',
+             'Mà để nhận ra — điều vốn chưa bao giờ rời đi.']
+          ];
+        %>
+        <div class="poem">
+          <% poem.forEach(function(stanza){ %>
+            <p class="stanza"><% stanza.forEach(function(line, i){ %><%= line %><% if (i < stanza.length - 1) { %><br><% } %><% }) %></p>
+          <% }) %>
+        </div>
+      </div>
+      <figure class="poem-img reveal">
+        <img src="/img/space-1.jpg" alt="<%= t('Không gian biểu diễn Alluvium — ánh sáng thấp', 'The Alluvium performance space — low light') %>" loading="lazy">
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- MOVEMENTS -->
+<section class="band movements" id="chuong">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Vở diễn', 'The work') %></span><span class="rule"></span></div>
+    <p class="mv-intro reveal"><%= t(
+      'Sáu mươi phút, không giờ giải lao. Sáu đến tám tác phẩm khí nhạc được sáng tác riêng cho dàn nhạc này — không chuyển soạn, không phỏng theo. Không có lời. Không cần lời.',
+      'Sixty minutes, no intermission. Six to eight instrumental works composed specifically for this ensemble — original, not arranged. No words. None needed.') %></p>
+    <div class="mv-list">
+      <a class="mv reveal" href="#lich-dien"><span class="n">01</span><span class="name"><%= t('Đất', 'Earth') %><em><%= t('Tiếng vọng khởi nguyên', 'An echo from the beginning') %></em></span><span class="arrow">→</span></a>
+      <a class="mv reveal" href="#lich-dien"><span class="n">02</span><span class="name"><%= t('Nước', 'Water') %><em><%= t('Dòng chảy không tắt', 'A current that never stops') %></em></span><span class="arrow">→</span></a>
+      <a class="mv reveal" href="#lich-dien"><span class="n">03</span><span class="name"><%= t('Tre', 'Bamboo') %><em><%= t('Hơi thở của rừng', 'The breath of the forest') %></em></span><span class="arrow">→</span></a>
+      <a class="mv reveal" href="#lich-dien"><span class="n">04</span><span class="name"><%= t('Nứa', 'Reed') %><em><%= t('Âm sắc ban sơ', 'The first timbre') %></em></span><span class="arrow">→</span></a>
+      <a class="mv reveal" href="#lich-dien"><span class="n">05</span><span class="name"><%= t('Đồng', 'Bronze') %><em><%= t('Tiếng ngân của lễ', 'The ring of ritual') %></em></span><span class="arrow">→</span></a>
+      <a class="mv reveal" href="#lich-dien"><span class="n">06</span><span class="name"><%= t('Da', 'Leather') %><em><%= t('Nhịp trống trở về', 'The drumbeat returns') %></em></span><span class="arrow">→</span></a>
+      <a class="mv reveal" href="#lich-dien"><span class="n">07</span><span class="name"><%= t('Gió', 'Wind') %><em><%= t('Khoảng lặng giữa hai tiếng', 'The silence between two sounds') %></em></span><span class="arrow">→</span></a>
+      <a class="mv reveal" href="#lich-dien"><span class="n">08</span><span class="name"><%= t('Tụ', 'Union') %><em><%= t('Tất cả hoà làm một', 'All become one') %></em></span><span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- SPACE -->
+<section class="band space" id="khong-gian">
+  <svg class="vault" aria-hidden="true" viewBox="0 0 1200 400" preserveAspectRatio="none"><g id="vaultg"></g></svg>
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Không gian', 'Venue') %></span><span class="rule"></span></div>
+    <div class="grid">
+      <div class="reveal">
+        <h2><%= t('Trung tâm Biểu diễn', 'Alluvium Performing') %> <em><%= t('Alluvium', 'Arts Center') %></em>.</h2>
+        <p><%= t(
+          'THỨC được trình diễn tại Trung tâm Biểu diễn Alluvium, trên đường Đinh Tiên Hoàng, Hoa Lư, Ninh Bình — trong vùng quần thể danh thắng Tràng An. Một không gian dựng riêng cho âm thanh bản địa, để tre, đồng và da vang lên đúng như nó vốn có.',
+          'THỨC is performed at the Alluvium Performing Arts Center on Dinh Tien Hoang Street, Hoa Lu, Ninh Binh — within the Trang An landscape complex. A space built for indigenous sound, where bamboo, bronze and leather resonate exactly as they should.') %></p>
+        <div class="stats">
+          <div><b>60′</b><span><%= t('Thời lượng', 'Duration') %></span></div>
+          <div><b>2</b><span><%= t('Suất mỗi ngày', 'Shows per day') %></span></div>
+          <div><b>5</b><span><%= t('Ngày mỗi tuần', 'Days per week') %></span></div>
+          <div><b>0</b><span><%= t('Giờ giải lao', 'Intermission') %></span></div>
+        </div>
+      </div>
+      <div class="space-media reveal">
+        <img class="full" src="/img/space-1.jpg" alt="<%= t('Không gian biểu diễn Alluvium', 'Alluvium performance space') %>" loading="lazy">
+        <img class="half" src="/img/space-2.jpg" alt="<%= t('Sân khấu nhìn từ khán đài Alluvium', 'Stage seen from the Alluvium auditorium') %>" loading="lazy">
+        <img class="half" src="/img/space-3.jpg" alt="<%= t('Chi tiết không gian biểu diễn Alluvium', 'Detail of the Alluvium performance space') %>" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTRUMENTS -->
+<section class="band instruments" id="nhac-cu">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Chất liệu', 'Materials') %></span><span class="rule"></span></div>
+    <div class="inst-head reveal">
+      <h2><%= t('Bốn chất liệu của', 'Four materials of') %><br><%= t('vùng đất này.', 'this land.') %></h2>
+    </div>
+    <div class="cards">
+      <div class="card reveal">
+        <svg class="glyph" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M10 6v28M18 6v28M26 6v28M34 6v28"/></svg>
+        <span class="idx"><%= t('tre', 'bamboo') %></span>
+        <h3><%= t('Tre', 'Bamboo') %></h3>
+        <p><%= t('Ống tre cho âm thanh trong và ấm — nền của nhiều tác phẩm trong vở diễn.', 'Bamboo pipes give a clear, warm tone — the foundation of many works in the performance.') %></p>
+      </div>
+      <div class="card reveal">
+        <svg class="glyph" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 20h32M8 20v-4M14 20v-4M20 20v-4M26 20v-4M32 20v-4"/></svg>
+        <span class="idx"><%= t('nứa', 'reed') %></span>
+        <h3><%= t('Nứa', 'Reed') %></h3>
+        <p><%= t('Nứa mảnh cho những âm sắc ban sơ, mở ra khoảng lặng đầu tiên của đêm diễn.', 'Slender reed gives the first, primal timbres — opening the earliest silence of the night.') %></p>
+      </div>
+      <div class="card reveal">
+        <svg class="glyph" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="20" cy="20" r="14"/><circle cx="20" cy="20" r="5"/></svg>
+        <span class="idx"><%= t('đồng', 'bronze') %></span>
+        <h3><%= t('Đồng', 'Bronze') %></h3>
+        <p><%= t('Cồng, chiêng và nhạc cụ đồng mang âm trầm ngân dài, giữ nhịp cho cả dàn nhạc.', 'Gongs and bronze instruments carry a deep, lingering resonance, keeping time for the whole ensemble.') %></p>
+      </div>
+      <div class="card reveal">
+        <svg class="glyph" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="20" cy="20" r="14"/><path d="M6 20h28"/></svg>
+        <span class="idx"><%= t('da', 'leather') %></span>
+        <h3><%= t('Da', 'Leather') %></h3>
+        <p><%= t('Trống da tạo nên nhịp đập — nhịp trống trong một buổi lễ đã lâu, trở về trong THỨC.', 'Leather drums form the heartbeat — the drum of a long-past ceremony, returning in THỨC.') %></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARTISTS -->
+<section class="band artists" id="nghe-si">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">SEASOUND</span><span class="rule"></span></div>
+    <div class="inst-head reveal"><h2><%= t('Dàn Khí Nhạc Bản Địa', 'Southeast Asian Indigenous') %><br><%= t('Đông Nam Á.', 'Music Ensemble.') %></h2></div>
+    <div class="people">
+      <div class="person reveal">
+        <div class="por"><span class="mono">NL</span><span class="tagcap"><%= t('Ảnh chân dung · 3:4', 'Portrait · 3:4') %></span></div>
+        <h3>Nguyễn Nhất Lý</h3><div class="role"><%= t('Nhạc sĩ · Giám đốc nghệ thuật', 'Composer · Artistic Director') %></div>
+        <p><%= t('Người khởi xướng SEASOUND và dàn dựng vở diễn đầu tiên — THỨC.', 'Founder of SEASOUND and creator of its debut work — THỨC.') %></p>
+      </div>
+      <div class="person reveal">
+        <div class="por"><span class="mono">AP</span><span class="tagcap"><%= t('Ảnh · 3:4', 'Photo · 3:4') %></span></div>
+        <h3>Alluvium Production</h3><div class="role"><%= t('Nhà đầu tư & sản xuất', 'Investor & Producer') %></div>
+        <p><%= t('Đơn vị đầu tư cho SEASOUND và không gian biểu diễn Alluvium tại Hoa Lư.', 'Backer of SEASOUND and of the Alluvium performance space in Hoa Lư.') %></p>
+      </div>
+      <div class="person reveal">
+        <div class="por"><span class="mono">SS</span><span class="tagcap"><%= t('Ảnh · 3:4', 'Photo · 3:4') %></span></div>
+        <h3><%= t('Dàn nhạc SEASOUND', 'The SEASOUND Ensemble') %></h3><div class="role"><%= t('Nghệ nhân & nhạc công', 'Artists & musicians') %></div>
+        <p><%= t('Những người còn nhớ cách lắng nghe — tấu lên trên nhạc cụ tre, nứa, đồng, da.', 'Those who still know how to listen — playing instruments of bamboo, reed, bronze and leather.') %></p>
+      </div>
+      <div class="person reveal">
+        <div class="por"><span class="mono">TH</span><span class="tagcap"><%= t('Ảnh · 3:4', 'Photo · 3:4') %></span></div>
+        <h3>THỨC</h3><div class="role"><%= t('Vở diễn đầu tiên', 'The debut work') %></div>
+        <p><%= t('Tiếng nói đầu tiên của SEASOUND — không mô phỏng phương Tây, không bảo tàng hoá truyền thống.', 'SEASOUND’s first voice — not modelled on Western forms, not museum pieces.') %></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="band gallery-sec" id="thu-vien">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Thư viện ảnh', 'Gallery') %></span><span class="rule"></span></div>
+    <div class="inst-head reveal"><h2><%= t('THỨC, qua từng khung hình.', 'THỨC, frame by frame.') %></h2></div>
+    <div class="gallery reveal">
+      <% var _galAlt = t('Ảnh THỨC by SEASOUND', 'THỨC by SEASOUND photo'); %>
+      <figure class="g-w2" data-full="https://drive.google.com/thumbnail?id=15TRIg5QyOgfyav7ZKxS-Ps62BEBVxZmR&sz=w2000"><img src="https://drive.google.com/thumbnail?id=15TRIg5QyOgfyav7ZKxS-Ps62BEBVxZmR&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="g-h2" data-full="https://drive.google.com/thumbnail?id=1wS8eY1FHigvM-qBm_8p6nMv9R_Sr8gW7&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1wS8eY1FHigvM-qBm_8p6nMv9R_Sr8gW7&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="" data-full="https://drive.google.com/thumbnail?id=1E9pTAy5aNME97iEbEMqlJ-Nidm4UsNrg&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1E9pTAy5aNME97iEbEMqlJ-Nidm4UsNrg&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="" data-full="https://drive.google.com/thumbnail?id=1AX7Nn59XXD1ABRasbbrSUOy-364EOQ8E&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1AX7Nn59XXD1ABRasbbrSUOy-364EOQ8E&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="g-w2" data-full="https://drive.google.com/thumbnail?id=1QlBD0glUkqLP3l8DnQ2R9Wy29gjNzZt2&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1QlBD0glUkqLP3l8DnQ2R9Wy29gjNzZt2&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="" data-full="https://drive.google.com/thumbnail?id=1wWf2XzuCb1DbOCjvareoleKlH1moS0XX&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1wWf2XzuCb1DbOCjvareoleKlH1moS0XX&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="g-h2" data-full="https://drive.google.com/thumbnail?id=1FtFgwM2_vwQDMy2DnZvc2tZS4SWbWxNG&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1FtFgwM2_vwQDMy2DnZvc2tZS4SWbWxNG&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="" data-full="https://drive.google.com/thumbnail?id=1nBbMAcaEKKZpFJmdxPutwJpUKXxWZiS3&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1nBbMAcaEKKZpFJmdxPutwJpUKXxWZiS3&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="g-w2" data-full="https://drive.google.com/thumbnail?id=1pDBPCh5252rcFEReduW0pM4Co_BzqHa_&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1pDBPCh5252rcFEReduW0pM4Co_BzqHa_&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="" data-full="https://drive.google.com/thumbnail?id=1H7y7yg4sIQgmpEFPpKk44qLPCwvaz86b&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1H7y7yg4sIQgmpEFPpKk44qLPCwvaz86b&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="g-h2" data-full="https://drive.google.com/thumbnail?id=1STjATAmFJDCHZpk2TWvAIG0ocwSaziN2&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1STjATAmFJDCHZpk2TWvAIG0ocwSaziN2&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="" data-full="https://drive.google.com/thumbnail?id=1RwCQ5QxN0IC9pJLLt4Vu7gk6E66wzJ_r&sz=w2000"><img src="https://drive.google.com/thumbnail?id=1RwCQ5QxN0IC9pJLLt4Vu7gk6E66wzJ_r&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+      <figure class="g-w2" data-full="https://drive.google.com/thumbnail?id=15_J9s3rC5shPFz6fG7JIVx93BqdNmeeS&sz=w2000"><img src="https://drive.google.com/thumbnail?id=15_J9s3rC5shPFz6fG7JIVx93BqdNmeeS&sz=w1400" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('figure').classList.add('imgfail')"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCES -->
+<section class="band exp-sec" id="trai-nghiem">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Đối tác', 'Partners') %></span><span class="rule"></span></div>
+    <div class="inst-head reveal"><h2><%= t('Dành cho báo chí, đối tác và nhóm khách.', 'For press, partners and groups.') %></h2></div>
+    <div class="exp">
+      <article class="reveal">
+        <div class="thumb"><img src="https://drive.google.com/thumbnail?id=15TRIg5QyOgfyav7ZKxS-Ps62BEBVxZmR&sz=w1200" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.thumb').classList.add('imgfail')"></div>
+        <div class="body"><h3><%= t('Đặt vé nhóm', 'Group booking') %></h3>
+          <p><%= t('Ưu đãi cho đoàn và nhóm khách. Liên hệ', 'Special rates for groups. Contact') %> <a href="mailto:group@seasound.com" style="color:var(--gold)">group@seasound.com</a> <%= t('để được hỗ trợ.', 'for assistance.') %></p>
+          <a class="more" href="#ghe-tham"><%= t('Liên hệ →', 'Contact →') %></a></div>
+      </article>
+      <article class="reveal">
+        <div class="thumb"><img src="https://drive.google.com/thumbnail?id=1wS8eY1FHigvM-qBm_8p6nMv9R_Sr8gW7&sz=w1200" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.thumb').classList.add('imgfail')"></div>
+        <div class="body"><h3><%= t('Hợp tác tour & đối tác', 'Tours & partners') %></h3>
+          <p><%= t('Dành cho tour operator và đối tác chiến lược cùng đồng hành với THỨC và SEASOUND.', 'For tour operators and strategic partners joining THỨC and SEASOUND.') %></p>
+          <a class="more" href="#ghe-tham"><%= t('Hợp tác →', 'Partner →') %></a></div>
+      </article>
+      <article class="reveal">
+        <div class="thumb"><img src="https://drive.google.com/thumbnail?id=1E9pTAy5aNME97iEbEMqlJ-Nidm4UsNrg&sz=w1200" alt="<%= _galAlt %>" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.thumb').classList.add('imgfail')"></div>
+        <div class="body"><h3><%= t('Báo chí & truyền thông', 'Press & media') %></h3>
+          <p><%= t('Press kit, ảnh độ phân giải cao và thông tin chi tiết:', 'Press kit, high-resolution images and full information:') %> <a href="mailto:press@seasound.com" style="color:var(--gold)">press@seasound.com</a>.</p>
+          <a class="more" href="#ghe-tham"><%= t('Nhận press kit →', 'Get press kit →') %></a></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAM -->
+<section class="band program" id="lich-dien">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Lịch diễn & Giá vé', 'Schedule & Prices') %></span><span class="rule"></span></div>
+    <h2 class="reveal"><%= t('Suất diễn sắp tới', 'Upcoming performances') %></h2>
+    <div class="shows">
+<% shows.forEach(function(s){ %>
+      <a class="show reveal" href="<%= s.url %>" data-show-id="<%= s.id %>">
+        <span class="date"><span class="d"><%= s.day %></span><span class="m"><%= s.monthLabel %></span></span>
+        <span class="title"><%= s.title %><small><%= s.subtitle %> · <%= s.time %></small></span>
+        <span class="tag"<%= s.on_sale ? '' : ' style="color:var(--gold);border-color:var(--line)"' %>><%= s.on_sale ? t('Còn vé', 'On sale') : t('Sắp mở bán', 'Coming soon') %></span>
+        <span class="book"><%= s.on_sale ? t('Đặt vé →', 'Reserve →') : t('Nhắc tôi →', 'Notify me →') %></span>
+      </a>
+<% }) %>
+<% if(!shows.length){ %><p class="hint"><%= t('Lịch diễn đang được cập nhật.', 'Schedule is being updated.') %></p><% } %>
+    </div>
+    <p class="hint reveal" style="margin-top:1.6rem"><%= t(
+      'Biểu diễn Thứ Tư – Chủ Nhật · hai suất mỗi ngày 15:00 và 18:00 · mỗi suất 60 phút, không giải lao (nghỉ Thứ Hai & Thứ Ba).',
+      'Performances Wednesday – Sunday · two shows daily at 3:00 PM and 6:00 PM · each 60 minutes, no intermission (closed Monday & Tuesday).') %></p>
+    <p class="hint reveal" style="margin-top:.4rem"><%= t('Giá vé:', 'Tickets:') %> <b style="color:var(--gold)"><%= t('ECO 450.000đ', 'ECO VND 450,000') %></b> · <b style="color:var(--gold)"><%= t('VIP 600.000đ', 'VIP VND 600,000') %></b> · <b style="color:var(--gold)"><%= t('VVIP 750.000đ', 'VVIP VND 750,000') %></b> · <%= t('Trẻ dưới 6 tuổi miễn phí · Trẻ dưới 3 tuổi không vào khán phòng.', 'Children under 6 free · Children under 3 not admitted.') %></p>
+  </div>
+</section>
+
+<!-- NEWS -->
+<section class="band news-sec" id="tin-tuc">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Tin tức & Sự kiện', 'News & Events') %></span><span class="rule"></span></div>
+    <div class="inst-head reveal"><h2><%= t('Chuyện mới từ THỨC.', 'Latest from THỨC.') %></h2></div>
+    <div class="news">
+<% posts.forEach(function(p){ %>
+      <article class="post reveal">
+        <div class="thumb"><a href="<%= p.url %>"><img src="<%= p.cover_image || '/img/space-1.jpg' %>" alt="<%= p.cover_alt || p.title %>" loading="lazy" onerror="this.closest('.thumb').classList.add('imgfail')"></a></div>
+        <div class="body"><div class="date"><%= p.dateLabel %></div>
+          <h3><a href="<%= p.url %>"><%= p.title %></a></h3>
+          <p><%= p.excerpt %></p>
+          <a class="more" href="<%= p.url %>"><%= t('Đọc tiếp →', 'Read more →') %></a></div>
+      </article>
+<% }) %>
+<% if(!posts.length){ %><p class="hint"><%= t('Chưa có bài viết nào được đăng.', 'No posts yet.') %></p><% } %>
+    </div>
+    <div class="reveal" style="margin-top:2rem"><a class="btn btn-ghost" href="/tin-tuc"><%= t('Xem tất cả tin tức', 'View all news') %></a></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="band faq-sec" id="hoi-dap">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Hỏi đáp', 'FAQ') %></span><span class="rule"></span></div>
+    <div class="inst-head reveal"><h2><%= t('Những điều cần biết trước khi đến.', 'Before you visit.') %></h2></div>
+    <div class="faq reveal">
+      <details><summary><%= t('Đặt vé online như thế nào?', 'How do I book online?') %><span class="pl">+</span></summary><div class="ans"><%= t('Chọn "Đặt vé", chọn suất diễn và hạng vé (ECO / VIP / VVIP), điền thông tin và xác nhận. Vé điện tử sẽ được gửi qua email.', 'Choose "Reserve", pick a performance and a ticket tier (ECO / VIP / VVIP), fill in your details and confirm. E-tickets are sent by email.') %></div></details>
+      <details><summary><%= t('Lịch biểu diễn ra sao?', 'What is the performance schedule?') %><span class="pl">+</span></summary><div class="ans"><%= t('Thứ Tư đến Chủ Nhật, hai suất mỗi ngày: 15:00–16:00 và 18:00–19:00. Thứ Hai và Thứ Ba nghỉ. Mỗi suất kéo dài 60 phút, không có giờ giải lao.', 'Wednesday to Sunday, two shows daily: 3:00 PM–4:00 PM and 6:00 PM–7:00 PM. Closed Monday and Tuesday. Each show runs 60 minutes with no intermission.') %></div></details>
+      <details><summary><%= t('Trẻ em có được vào xem không?', 'Are children admitted?') %><span class="pl">+</span></summary><div class="ans"><%= t('Trẻ em dưới 6 tuổi được miễn phí. Trẻ em dưới 3 tuổi không được vào khán phòng.', 'Children under 6 enter free. Children under 3 are not admitted to the auditorium.') %></div></details>
+      <details><summary><%= t('Nên đến lúc nào, trang phục ra sao?', 'When should I arrive, and what should I wear?') %><span class="pl">+</span></summary><div class="ans"><%= t('Nên đến trước giờ diễn 20 phút. Trang phục thoải mái — không yêu cầu trang trọng.', 'Arrive at least 20 minutes before the performance. Dress comfortably — no formal dress code required.') %></div></details>
+      <details><summary><%= t('Có được chụp ảnh, quay phim không?', 'Is photography or filming allowed?') %><span class="pl">+</span></summary><div class="ans"><%= t('Không chụp ảnh và quay phim trong suốt suất diễn, để giữ trọn không gian âm thanh cho tất cả khán giả.', 'Photography and recording are not permitted during the performance, to preserve the sound for all audiences.') %></div></details>
+      <details><summary><%= t('Liên hệ báo chí & đối tác ở đâu?', 'How do press and partners get in touch?') %><span class="pl">+</span></summary><div class="ans"><%= t('Báo chí, press kit và ảnh độ phân giải cao: press@seasound.com. Đặt vé nhóm, tour & đối tác: group@seasound.com.', 'Press, press kit and high-resolution images: press@seasound.com. Group bookings, tours & partners: group@seasound.com.') %></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- VISIT -->
+<section class="band visit" id="ghe-tham">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Ghé thăm', 'Visit') %></span><span class="rule"></span></div>
+    <div class="grid">
+      <div class="reveal">
+        <h2><%= t('Giữa', 'In the heart of') %> <em><%= t('lòng di sản', 'Trang An') %></em> <%= t('Tràng An.', 'heritage.') %></h2>
+        <div class="info" style="margin-top:1.8rem">
+          <dl>
+            <dt><%= t('Địa điểm', 'Venue') %></dt><dd><%= t('Trung tâm Biểu diễn Alluvium · Đường Đinh Tiên Hoàng, Hoa Lư, Ninh Bình', 'Alluvium Performing Arts Center · Dinh Tien Hoang Street, Hoa Lu, Ninh Binh') %></dd>
+            <dt><%= t('Lân cận', 'Nearby') %></dt><dd><%= t('Nằm trong vùng quần thể Tràng An — Di sản Thế giới UNESCO', 'Within the Trang An complex — a UNESCO World Heritage Site') %></dd>
+            <dt><%= t('Lịch diễn', 'Schedule') %></dt><dd><%= t('Thứ Tư – Chủ Nhật · 15:00 và 18:00 · nghỉ Thứ Hai & Thứ Ba', 'Wednesday – Sunday · 3:00 PM and 6:00 PM · closed Monday & Tuesday') %></dd>
+            <dt><%= t('Liên hệ', 'Contact') %></dt><dd><%= t('Vé', 'Tickets') %>: <span style="color:var(--gold)">tickets@seasound.com</span> · <%= t('Báo chí', 'Press') %>: <span style="color:var(--gold)">press@seasound.com</span> · <%= t('Nhóm & đối tác', 'Groups & partners') %>: <span style="color:var(--gold)">group@seasound.com</span></dd>
+          </dl>
+        </div>
+        <a class="btn btn-gold" href="#lich-dien" style="margin-top:2rem"><%= t('Đặt vé', 'Reserve seats') %></a>
+      </div>
+      <div class="map reveal" role="img" aria-label="<%= t('Vị trí Trung tâm Biểu diễn Alluvium tại Hoa Lư, Ninh Bình', 'Location of the Alluvium Performing Arts Center in Hoa Lư, Ninh Bình') %>">
+        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <rect width="400" height="300" fill="#241c11"/>
+          <path d="M0 210 Q90 180 180 205 T400 200 V300 H0 Z" fill="#1c160d"/>
+          <path d="M40 60 l30 -20 25 30 -20 25 -35 5 z M120 40 l40 -8 20 34 -30 22 -34 -18 z M250 70 l44 -14 26 40 -34 24 -40 -22 z" fill="none" stroke="rgba(201,163,92,.25)" stroke-width="1"/>
+          <g stroke="rgba(236,226,205,.08)" stroke-width="1">
+            <line x1="0" y1="120" x2="400" y2="110"/><line x1="0" y1="170" x2="400" y2="165"/>
+            <line x1="150" y1="0" x2="140" y2="300"/><line x1="270" y1="0" x2="285" y2="300"/>
+          </g>
+        </svg>
+        <div class="pin"><div class="dot"></div><span>THỨC · Alluvium</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<%- include("partials/footer") %>
+
+<%- include("partials/booking-modal") %>
+
+<%- include("partials/end") %>

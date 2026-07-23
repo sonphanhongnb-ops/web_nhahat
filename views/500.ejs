@@ -1,0 +1,19 @@
+<%- include("partials/head", { extraCss: '/css/pages.css' }) %>
+<%- include("partials/nav") %>
+
+<main id="top" class="page-main">
+  <section class="page-hero errpage">
+    <div class="wrap">
+      <div class="sec-head"><span class="num">500</span><span class="eyebrow"><%= t('Lỗi hệ thống', 'System error') %></span><span class="rule"></span></div>
+      <h1><%= t('Có trục trặc phía hậu đài.', 'Something went wrong backstage.') %></h1>
+      <p class="lede"><%= t('Máy chủ gặp lỗi khi xử lý yêu cầu này. Vui lòng thử lại sau ít phút.', 'The server hit an error handling this request. Please try again in a few minutes.') %></p>
+      <div class="hero-cta"><a class="btn btn-gold" href="/"><%= t('Về trang chủ', 'Back to home') %></a></div>
+      <% if (typeof detail !== 'undefined' && detail) { %>
+        <pre class="err-detail"><%= detail %></pre>
+      <% } %>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>
+<%- include("partials/end") %>

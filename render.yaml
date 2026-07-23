@@ -1,0 +1,42 @@
+# ==========================================================
+#  Render Blueprint — THỨC by SEASOUND
+#  Render.com → New → Blueprint → chọn repo này.
+#  Cần gói Starter (có ổ đĩa lưu trữ); gói Free không hỗ trợ disk.
+# ==========================================================
+services:
+  - type: web
+    name: thuc-seasound
+    runtime: node
+    plan: starter                 # cần Starter trở lên để có "disk" (dữ liệu không mất)
+    region: singapore             # gần Việt Nam nhất
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /robots.txt
+    autoDeploy: true
+    disk:
+      name: data
+      mountPath: /data            # ổ đĩa lưu trữ: CSDL + ảnh upload nằm ở đây
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_NO_WARNINGS
+        value: "1"
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DB_FILE
+        value: /data/app.db
+      - key: UPLOAD_DIR
+        value: /data/uploads
+      - key: MAX_UPLOAD_MB
+        value: "8"
+      - key: SESSION_SECRET
+        generateValue: true       # Render tự sinh & giữ cố định
+      # ⚠ Sau khi có URL Render cấp, sửa lại giá trị này trong Dashboard:
+      - key: SITE_URL
+        value: https://thuc-seasound.onrender.com
+      # Tài khoản quản trị tạo ở lần chạy đầu — ĐỔI MẬT KHẨU ngay sau khi vào
+      - key: SEED_ADMIN_EMAIL
+        value: admin@seasound.com
+      - key: SEED_ADMIN_PASSWORD
+        sync: false               # tự nhập trong Dashboard, không lưu vào repo

@@ -1,0 +1,247 @@
+<%- include("partials/header") %>
+
+<form method="post" action="/admin/posts/save" id="post-form">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <input type="hidden" name="id" value="<%= post.id || '' %>">
+  <input type="hidden" name="type" value="<%= post.type %>">
+
+  <div class="editor">
+    <!-- ============ CỘT TRÁI: NỘI DUNG ============ -->
+    <div>
+      <div class="card">
+        <input class="title-input" type="text" name="title" id="f-title" value="<%= post.title %>"
+               placeholder="Tiêu đề <%= post.type === 'page' ? 'trang' : 'bài viết' %>…" required autocomplete="off">
+        <div class="slug-line">
+          <span><%= siteUrl %>/<%= post.type === 'page' ? 'trang' : 'tin-tuc' %>/</span>
+          <input type="text" name="slug" id="f-slug" value="<%= post.slug %>" placeholder="duong-dan-than-thien" autocomplete="off">
+          <button class="btn btn-sm" type="button" id="btn-slug">Tạo từ tiêu đề</button>
+        </div>
+      </div>
+
+      <div class="card mt">
+        <h3>Nội dung <span class="counter" id="c-words">0 từ</span></h3>
+        <div class="editor-toolbar">
+          <button type="button" data-md="## ">H2</button>
+          <button type="button" data-md="### ">H3</button>
+          <button type="button" data-wrap="**">Đậm</button>
+          <button type="button" data-wrap="*">Nghiêng</button>
+          <button type="button" data-md="- ">Danh sách</button>
+          <button type="button" data-md="> ">Trích dẫn</button>
+          <button type="button" id="btn-link">Liên kết</button>
+          <button type="button" id="btn-img">Chèn ảnh</button>
+          <button type="button" data-md="---\n">Đường kẻ</button>
+        </div>
+        <textarea class="content-area" name="content" id="f-content"
+                  placeholder="Viết nội dung bằng Markdown hoặc HTML…&#10;&#10;## Tiêu đề mục&#10;&#10;Đoạn văn của bạn…"><%= post.content %></textarea>
+        <p class="help">Hỗ trợ Markdown (## tiêu đề, **đậm**, - danh sách, [liên kết](url)) hoặc HTML. Tiêu đề H2/H3 tự động có anchor để tạo mục lục — tốt cho SEO.</p>
+      </div>
+
+      <div class="card mt">
+        <h3>Mô tả ngắn (excerpt)</h3>
+        <div class="field">
+          <textarea name="excerpt" id="f-excerpt" rows="3" placeholder="Tóm tắt 1–2 câu, dùng cho trang danh sách và mạng xã hội."><%= post.excerpt %></textarea>
+          <div class="help">Bỏ trống để hệ thống tự trích từ nội dung.</div>
+        </div>
+      </div>
+
+      <!-- ============ KHỐI SEO ============ -->
+      <div class="card mt" id="seo-block">
+        <h3>Tối ưu công cụ tìm kiếm (SEO)</h3>
+
+        <div class="field">
+          <label for="f-kw">Từ khoá chính <span class="counter">cụm từ bạn muốn lên top</span></label>
+          <input type="text" name="focus_keyword" id="f-kw" value="<%= post.focus_keyword %>" placeholder="ví dụ: cồng chiêng Tây Nguyên">
+          <div class="help">Hệ thống sẽ kiểm tra từ khoá này trong tiêu đề, đường dẫn, mô tả, đoạn mở đầu và tiêu đề phụ.</div>
+        </div>
+
+        <div class="field">
+          <label for="f-mtitle">Tiêu đề SEO <span class="counter" id="c-mtitle">0/60</span></label>
+          <input type="text" name="meta_title" id="f-mtitle" value="<%= post.meta_title %>" placeholder="Để trống sẽ dùng tiêu đề bài viết" maxlength="200">
+        </div>
+
+        <div class="field">
+          <label for="f-mdesc">Mô tả meta <span class="counter" id="c-mdesc">0/160</span></label>
+          <textarea name="meta_desc" id="f-mdesc" rows="3" maxlength="320" placeholder="Câu mô tả xuất hiện dưới tiêu đề trên Google. Nên chứa từ khoá chính."><%= post.meta_desc %></textarea>
+        </div>
+
+        <h3 class="mt">Xem trước trên Google</h3>
+        <div class="serp">
+          <div class="url"><%= siteUrl.replace(/^https?:\/\//, '') %> <span>› <%= post.type === 'page' ? 'trang' : 'tin-tuc' %> › <span id="p-slug"><%= post.slug %></span></span></div>
+          <div class="title" id="p-title">Tiêu đề bài viết</div>
+          <div class="desc" id="p-desc">Mô tả meta sẽ hiển thị ở đây…</div>
+        </div>
+
+        <details class="mt">
+          <summary style="cursor:pointer;color:var(--gold);font-size:.85rem;margin-bottom:1rem">Tuỳ chọn SEO nâng cao</summary>
+          <div class="grid g2 mt">
+            <div class="field">
+              <label for="f-canon">URL chuẩn (canonical)</label>
+              <input type="url" name="canonical_url" id="f-canon" value="<%= post.canonical_url %>" placeholder="Để trống nếu bài là bản gốc">
+              <div class="help">Chỉ điền khi nội dung này trùng lặp với một URL khác.</div>
+            </div>
+            <div class="field">
+              <label for="f-schema">Loại dữ liệu có cấu trúc</label>
+              <select name="schema_type" id="f-schema">
+                <% ['Article','NewsArticle','BlogPosting','Event','WebPage'].forEach(function(t){ %>
+                  <option value="<%= t %>" <%= post.schema_type === t ? 'selected' : '' %>><%= t %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-ogtitle">Tiêu đề khi chia sẻ (Open Graph)</label>
+              <input type="text" name="og_title" id="f-ogtitle" value="<%= post.og_title %>" placeholder="Để trống = dùng tiêu đề SEO">
+            </div>
+            <div class="field">
+              <label for="f-ogimg">Ảnh khi chia sẻ (1200×630)</label>
+              <input type="text" name="og_image" id="f-ogimg" value="<%= post.og_image %>" placeholder="/uploads/… — để trống = dùng ảnh đại diện">
+            </div>
+            <div class="field">
+              <label for="f-ogdesc">Mô tả khi chia sẻ</label>
+              <textarea name="og_desc" id="f-ogdesc" rows="2"><%= post.og_desc %></textarea>
+            </div>
+            <div class="field">
+              <label>Sitemap</label>
+              <div class="row">
+                <select name="sitemap_priority" style="flex:1">
+                  <% ['1.0','0.9','0.8','0.7','0.6','0.5','0.3'].forEach(function(v){ %>
+                    <option value="<%= v %>" <%= post.sitemap_priority === v ? 'selected' : '' %>>Ưu tiên <%= v %></option>
+                  <% }) %>
+                </select>
+                <select name="sitemap_freq" style="flex:1">
+                  <% [['daily','Hằng ngày'],['weekly','Hằng tuần'],['monthly','Hằng tháng'],['yearly','Hằng năm']].forEach(function(v){ %>
+                    <option value="<%= v[0] %>" <%= post.sitemap_freq === v[0] ? 'selected' : '' %>><%= v[1] %></option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="check"><input type="checkbox" name="noindex" id="f-noindex" value="1" <%= post.noindex ? 'checked' : '' %>><label for="f-noindex">Chặn lập chỉ mục (noindex) — Google sẽ không hiển thị bài này</label></div>
+          <div class="check"><input type="checkbox" name="nofollow" id="f-nofollow" value="1" <%= post.nofollow ? 'checked' : '' %>><label for="f-nofollow">Không đi theo liên kết trong bài (nofollow)</label></div>
+        </details>
+      </div>
+
+      <% if (revisions.length) { %>
+      <div class="card mt">
+        <h3>Lịch sử phiên bản</h3>
+        <% revisions.forEach(function(r){ %>
+          <details class="rev">
+            <summary><%= U.formatDateTimeVN(r.created_at) %> · <%= r.user_name || 'Hệ thống' %> · <%= r.title %></summary>
+            <div class="mt">
+              <p class="small muted"><%= (r.content || '').slice(0, 400) %>…</p>
+              <form method="post" action="/admin/posts/<%= post.id %>/restore/<%= r.id %>"
+                    onsubmit="return confirm('Khôi phục phiên bản này? Nội dung hiện tại sẽ được lưu lại trước khi ghi đè.')">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button class="btn btn-sm" type="submit">Khôi phục phiên bản này</button>
+              </form>
+            </div>
+          </details>
+        <% }) %>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- ============ CỘT PHẢI ============ -->
+    <div class="editor-side">
+      <div class="card">
+        <h3>Xuất bản</h3>
+        <div class="field">
+          <label for="f-status">Trạng thái</label>
+          <select name="status" id="f-status">
+            <option value="draft" <%= post.status === 'draft' ? 'selected' : '' %>>Bản nháp</option>
+            <option value="review" <%= post.status === 'review' ? 'selected' : '' %>>Gửi chờ duyệt</option>
+            <% if (canPublish) { %>
+              <option value="published" <%= post.status === 'published' ? 'selected' : '' %>>Xuất bản</option>
+              <option value="archived" <%= post.status === 'archived' ? 'selected' : '' %>>Lưu trữ</option>
+            <% } %>
+          </select>
+          <% if (!canPublish) { %>
+            <div class="help">Vai trò <b><%= ROLES[user.role].label %></b> chưa được xuất bản trực tiếp — hãy gửi chờ duyệt.</div>
+          <% } %>
+        </div>
+        <div class="field">
+          <label for="f-date">Thời gian xuất bản</label>
+          <input type="datetime-local" name="published_at" id="f-date"
+                 value="<%= post.published_at ? String(post.published_at).replace(' ', 'T').slice(0,16) : '' %>">
+          <div class="help">Đặt thời điểm tương lai để hẹn giờ đăng.</div>
+        </div>
+        <div class="check">
+          <input type="checkbox" name="featured" id="f-feat" value="1" <%= post.featured ? 'checked' : '' %>>
+          <label for="f-feat">Bài nổi bật (ưu tiên hiển thị)</label>
+        </div>
+        <div class="row mt">
+          <button class="btn btn-gold" type="submit">Lưu <%= post.type === 'page' ? 'trang' : 'bài viết' %></button>
+          <% if (post.id) { %>
+            <a class="btn btn-sm" href="/<%= post.type === 'page' ? 'trang' : 'tin-tuc' %>/<%= post.slug %>?preview=1" target="_blank" rel="noopener">Xem trước</a>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Bảng điểm SEO -->
+      <div class="card" id="seo-panel">
+        <h3>Điểm SEO</h3>
+        <div class="seo-score">
+          <div class="score-ring" id="ring" style="--score:<%= analysis ? analysis.score : 0 %>;--ring-color:var(--gold)">
+            <b id="ring-num"><%= analysis ? analysis.score : 0 %></b>
+          </div>
+          <div class="score-meta">
+            <b id="grade"><%= analysis ? analysis.grade : 'Chưa phân tích' %></b>
+            <span id="stats"><%= analysis ? analysis.stats.words + ' từ · ' + analysis.stats.readingTime + ' phút đọc' : 'Nhập nội dung để phân tích' %></span>
+          </div>
+        </div>
+        <ul class="checks" id="checks">
+          <% (analysis ? analysis.checks : []).forEach(function(c){ %>
+            <li class="<%= c.status %>"><span class="dot"></span><span><b><%= c.label %></b><small><%= c.hint %></small></span></li>
+          <% }) %>
+        </ul>
+        <button class="btn btn-sm mt" type="button" id="btn-analyze">Phân tích lại</button>
+      </div>
+
+      <div class="card">
+        <h3>Phân loại</h3>
+        <div class="field">
+          <label for="f-cat">Chuyên mục</label>
+          <select name="category_id" id="f-cat">
+            <option value="">— Chưa phân loại —</option>
+            <% categories.forEach(function(c){ %>
+              <option value="<%= c.id %>" <%= post.category_id === c.id ? 'selected' : '' %>><%= c.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-tags">Thẻ</label>
+          <input type="text" name="tags" id="f-tags" value="<%= (post.tags || []).map(function(t){return t.name}).join(', ') %>"
+                 placeholder="cồng chiêng, nghệ nhân, Ninh Bình" list="tag-list">
+          <datalist id="tag-list">
+            <% allTags.forEach(function(t){ %><option value="<%= t.name %>"></option><% }) %>
+          </datalist>
+          <div class="help">Ngăn cách bằng dấu phẩy. Thẻ mới sẽ được tạo tự động.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Ảnh đại diện</h3>
+        <div class="field">
+          <input type="text" name="cover_image" id="f-cover" value="<%= post.cover_image %>" placeholder="/uploads/anh.jpg">
+        </div>
+        <div class="field">
+          <label for="f-alt">Mô tả ảnh (ALT)</label>
+          <input type="text" name="cover_alt" id="f-alt" value="<%= post.cover_alt %>" placeholder="Mô tả nội dung ảnh — quan trọng cho SEO ảnh">
+        </div>
+        <div class="cover-preview" id="cover-preview" style="<%= post.cover_image ? '' : 'display:none' %>">
+          <img id="cover-img" src="<%= post.cover_image %>" alt="">
+        </div>
+        <p class="help mt">Chọn từ thư viện:</p>
+        <div class="media-picker" id="picker">
+          <% media.forEach(function(m){ %>
+            <button type="button" data-url="<%= m.url %>" data-alt="<%= m.alt %>" title="<%= m.filename %>">
+              <img src="<%= m.url %>" alt="<%= m.alt %>" loading="lazy">
+            </button>
+          <% }) %>
+        </div>
+        <a class="btn btn-sm mt" href="/admin/media" target="_blank" rel="noopener">Tải ảnh mới lên ↗</a>
+      </div>
+    </div>
+  </div>
+</form>
+
+<%- include("partials/footer") %>

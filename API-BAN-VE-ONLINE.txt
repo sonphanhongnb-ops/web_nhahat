@@ -1,0 +1,1627 @@
+================================================================================
+ TÀI LIỆU API — TÍCH HỢP WEBSITE BÁN VÉ ONLINE
+ Hệ thống vé Nhà hát Seaphony
+ Phiên bản: 2026-07-21
+================================================================================
+
+Tài liệu này mô tả các API cần dùng để một website bán vé online kết nối vào
+hệ thống vé. Mọi ví dụ JSON trong tài liệu là phản hồi THẬT chụp lại từ máy chủ,
+không phải ví dụ minh hoạ.
+
+
+--------------------------------------------------------------------------------
+ MỤC LỤC
+--------------------------------------------------------------------------------
+  0. ĐỌC TRƯỚC KHI TÍCH HỢP — những điểm phải xử lý
+  1. Thông tin chung (địa chỉ, định dạng, mã lỗi)
+  2. Xác thực
+  3. Luồng đặt vé online qua VNPay — sơ đồ
+  4. API chi tiết
+     4.1  Đăng nhập
+     4.2  Danh sách suất diễn đang mở bán
+     4.3  Chi tiết suất diễn + bảng giá
+     4.4  Sơ đồ ghế của suất diễn
+     4.5  Tính thử tiền
+     4.6  Giữ ghế
+     4.7  Nhả ghế
+     4.8  Xuất vé
+     4.9  Lấy vé để gửi khách (kèm mã QR)
+     4.10 Tra cứu vé
+     4.11 Danh mục hình thức thanh toán
+  4B. THANH TOÁN VNPAY  <<< luồng chính, đọc mục này
+  5. Bảng mã trạng thái
+  6. Xử lý tranh chấp ghế
+  7. Việc phải làm phía hệ thống trước khi mở bán online
+  8. Phụ lục — ví dụ mã nguồn
+
+
+================================================================================
+ 0. ĐỌC TRƯỚC KHI TÍCH HỢP — NHỮNG ĐIỂM PHẢI XỬ LÝ
+================================================================================
+
+Hệ thống hiện được thiết kế cho QUẦY VÉ nội bộ, chưa có cổng công khai cho
+website. Sáu điểm dưới đây phải xử lý trước khi mở bán ra ngoài. Không phải lỗi
+cần sửa gấp, nhưng bỏ qua thì website sẽ chạy sai.
+
+
+(0.1) KHÔNG CÓ API CÔNG KHAI — MỌI ENDPOINT ĐỀU CẦN ĐĂNG NHẬP
+      Chỉ /api/auth/* là công khai. Tất cả phần còn lại bắt buộc JWT.
+
+      => Website phải gọi API từ MÁY CHỦ (server-side), dùng một TÀI KHOẢN DỊCH
+         VỤ riêng. TUYỆT ĐỐI không đưa token xuống trình duyệt: token của hệ
+         thống này mang quyền của nhân viên, lộ ra là mất quyền kiểm soát.
+
+      Kiến trúc đúng:
+         Trình duyệt  ->  Máy chủ website  ->  API hệ thống vé
+                          (giữ token ở đây)
+
+      Kiến trúc SAI:
+         Trình duyệt  ->  API hệ thống vé      (token nằm trong JavaScript)
+
+
+(0.2) TÀI KHOẢN DỊCH VỤ — ĐÃ TẠO SẴN
+      Tài khoản riêng cho website đã được tạo, KHÔNG dùng admin:
+
+         Tên đăng nhập : website_banve
+         Vai trò       : "Website bán vé online"
+
+      Mật khẩu được giao riêng, không ghi trong tài liệu này.
+
+      HÌNH THỨC THANH TOÁN: CHỈ VNPAY.
+      Tài khoản này bị khoá ở tầng máy chủ, chỉ thu được qua VNPay. Gửi lên bất
+      kỳ hình thức nào khác — kể cả trộn VNPay với hình thức khác — đều bị từ
+      chối HTTP 403. Xem mục 4.11.
+
+      Đây là tài khoản DỊCH VỤ: được miễn yêu cầu gán quầy vé và phân ca hằng
+      ngày (website chạy 24/7, không có quầy, không ai trực ca). Đổi lại, nó
+      buộc phải có giới hạn hình thức thanh toán — cơ sở dữ liệu không cho tồn
+      tại một tài khoản dịch vụ thu được bằng tiền mặt.
+
+      Vai trò gồm đúng 5 quyền, không hơn:
+
+         VE_BAN_VE_GHE         Xem sơ đồ ghế, giữ ghế, xuất vé
+         KB_SUAT_DIEN_VIEW     Xem lịch diễn và bảng giá
+         VE_DA_BAN_VIEW        Lấy vé + mã QR để gửi khách
+         VE_KIEM_TRA           Trang tra cứu vé cho khách
+         KB_HINH_THUC_TT_VIEW  Đọc id hình thức thanh toán (mục 4.11)
+
+      KHÔNG có: hoàn vé, đổi vé, in lại vé, huỷ hoá đơn, báo cáo doanh thu,
+      khai báo danh mục, quản lý người dùng, đọc/sửa cấu hình hệ thống.
+      Gọi các endpoint đó sẽ nhận HTTP 403.
+
+      Quản lý tài khoản (chạy trong thư mục db/):
+         node seed-website-account.js --reset-pass   đổi mật khẩu
+         node seed-website-account.js --sync-perms   đặt lại đúng bộ quyền
+         node seed-website-account.js --remove       xoá tài khoản
+
+
+(0.3) CORS ĐANG CHỈ CHO PHÉP localhost:5173
+      File backend/.env:
+         CORS_ORIGIN=http://localhost:5173
+
+      Nếu gọi từ máy chủ website (đúng cách) thì CORS không liên quan.
+      Chỉ khi nào gọi trực tiếp từ trình duyệt mới cần thêm tên miền vào đây —
+      nhưng cách đó vi phạm mục (0.1), không nên làm.
+
+
+(0.4) /showtimes/sellable CHỈ TRẢ VỀ ĐÚNG MỘT NGÀY
+      Không truyền tham số thì mặc định là NGÀY HÔM NAY.
+      Muốn hiện lịch diễn cả tuần/tháng, website phải gọi lặp từng ngày,
+      hoặc dùng /seating/showtimes?fromDate=...&toDate=... (có phân trang).
+
+
+(0.5) sale_open_at CHƯA ĐƯỢC HỆ THỐNG KIỂM TRA
+      Bảng suất diễn có hai cột sale_open_at / sale_close_at, nhưng:
+         - sale_close_at : CÓ kiểm tra, ở bước giữ ghế
+         - sale_open_at  : KHÔNG kiểm tra ở bất kỳ đâu
+
+      => Nếu website cần chặn "chưa tới giờ mở bán", phải TỰ kiểm tra
+         sale_open_at ở phía website. Hệ thống sẽ không chặn giúp.
+
+
+(0.6) VNPAY ĐÃ ĐƯỢC TÍCH HỢP SẴN — DÙNG MỤC 4B, KHÔNG TỰ LÀM
+      Hệ thống vé đã tự lo trọn khâu thanh toán: dựng đường dẫn VNPay, nhận IPN,
+      xuất vé. Website CHỈ cần gọi 2 endpoint (tạo đơn, tra trạng thái).
+
+      => KHÔNG dùng mục 4.6 (giữ ghế) + 4.8 (xuất vé) cho bán online. Hai mục đó
+         dành cho quầy vé. Tự ghép chúng với cổng thanh toán sẽ tạo lại đúng lỗ
+         hổng "khách trả tiền mà không có vé" mà mục 4B đã bịt.
+
+      Đọc thẳng MỤC 4B.
+
+
+================================================================================
+ 1. THÔNG TIN CHUNG
+================================================================================
+
+Địa chỉ gốc:
+    https://ticket-api-tamchuc.vercel.app/api     (đã chạy trên Internet)
+    http://localhost:4000/api                     (máy phát triển)
+
+Định dạng:
+    - Gửi và nhận đều là JSON, mã hoá UTF-8
+    - Header bắt buộc khi gửi dữ liệu:  Content-Type: application/json
+    - Thời gian theo chuẩn ISO 8601 kèm múi giờ, ví dụ:
+          "2026-07-24T15:19:40.057+00:00"
+    - Tiền là số, đơn vị đồng, không có dấu phân cách:  350000
+    - Mọi định danh (id) là UUID
+
+Giới hạn tần suất:
+    300 lượt gọi / 1 phút / 1 địa chỉ IP.
+    Vượt ngưỡng trả về HTTP 429.
+
+CẤU TRÚC PHẢN HỒI — mọi endpoint đều theo đúng khuôn này:
+
+    Thành công:
+        {
+          "success": true,
+          "data": { ... }
+        }
+
+    Thành công + phân trang:
+        {
+          "success": true,
+          "data": [ ... ],
+          "meta": { "page": 1, "pageSize": 20, "total": 57, "totalPages": 3 }
+        }
+
+    Thất bại:
+        {
+          "success": false,
+          "message": "Mô tả lỗi bằng tiếng Việt, hiển thị được cho khách",
+          "errors":  [ ... ],   (chỉ có khi lỗi kiểm tra dữ liệu)
+          "details": { ... }    (chỉ có khi lỗi tranh chấp ghế)
+        }
+
+    LƯU Ý: dữ liệu thật luôn nằm trong trường "data", không nằm ở gốc.
+
+MÃ TRẠNG THÁI HTTP:
+
+    200  Thành công
+    201  Đã tạo (chỉ ở bước xuất vé)
+    400  Dữ liệu gửi lên sai       -> kèm mảng "errors", sửa dữ liệu rồi gửi lại
+    401  Chưa đăng nhập / hết hạn  -> đăng nhập lại lấy token mới
+    403  Không đủ quyền            -> tài khoản dịch vụ thiếu quyền, xem (0.2)
+    404  Không tìm thấy
+    409  Xung đột                  -> ghế bị người khác lấy, hoặc trả thiếu tiền
+    429  Gọi quá nhiều             -> chờ rồi thử lại
+    500  Lỗi máy chủ
+
+
+================================================================================
+ 2. XÁC THỰC
+================================================================================
+
+Hệ thống dùng JWT. Sau khi đăng nhập, gắn token vào mọi lần gọi tiếp theo:
+
+    Authorization: Bearer <token>
+
+Token có hạn sử dụng. Khi nhận HTTP 401 kèm thông báo
+"Chưa đăng nhập hoặc phiên đã hết hạn" thì đăng nhập lại để lấy token mới.
+
+KHUYẾN NGHỊ: máy chủ website nên lưu token trong bộ nhớ và tự đăng nhập lại khi
+gặp 401, thay vì đăng nhập lại ở mỗi lần gọi.
+
+
+================================================================================
+ 3. LUỒNG ĐẶT VÉ ONLINE — SƠ ĐỒ 6 BƯỚC
+================================================================================
+
+  BƯỚC 1   Hiện lịch diễn
+           GET /seating/showtimes/sellable?date=2026-07-24
+                 |
+  BƯỚC 2   Khách chọn suất -> vẽ sơ đồ ghế
+           GET /seating/showtimes/{id}/seat-map
+                 |
+  BƯỚC 3   Khách chọn ghế -> hiện tổng tiền
+           POST /seating/seats/preview
+                 |
+  BƯỚC 4   Khách bấm "Thanh toán" -> GIỮ GHẾ NGAY (5 phút)
+           POST /seating/seats/hold        -> nhận hold_token
+                 |
+                 |  Chuyển khách sang cổng thanh toán (VNPay/Momo...)
+                 |  Cổng báo về THÀNH CÔNG
+                 |
+  BƯỚC 5   Xuất vé
+           POST /seating/seats/issue       -> gửi kèm hold_token
+                 |
+  BƯỚC 6   Lấy vé + mã QR, gửi email cho khách
+           GET /sales/invoices/{id}/print-data
+
+
+  NẾU KHÁCH HUỶ hoặc THANH TOÁN THẤT BẠI:
+           POST /seating/seats/release     -> trả ghế lại ngay,
+                                              đừng đợi hết 5 phút
+
+  QUY TẮC QUAN TRỌNG:
+    - Giữ ghế NGAY TRƯỚC khi chuyển sang thanh toán, không giữ sớm hơn
+      (giữ sớm làm ghế bị khoá vô ích, khách khác không mua được)
+    - hold_token phải được truyền nguyên vẹn từ bước 4 sang bước 5
+    - Ghế chỉ được giữ 5 phút. Quá hạn, hệ thống tự nhả.
+
+
+================================================================================
+ 4. API CHI TIẾT
+================================================================================
+
+--------------------------------------------------------------------------------
+ 4.1  ĐĂNG NHẬP
+--------------------------------------------------------------------------------
+    POST /api/auth/login
+    Không cần token.
+
+GỬI LÊN:
+    {
+      "username": "website_banve",
+      "password": "..."
+    }
+
+NHẬN VỀ (HTTP 200):
+    {
+      "success": true,
+      "data": {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "user": {
+          "id": "9fa91fc4-2b33-4bb4-b1c7-95a8a0b0098b",
+          "username": "admin",
+          "fullName": "Quản trị viên",
+          "roleId": "8c7fa1ce-612a-476c-8942-f824b52aae0d",
+          "roleName": "Quản trị hệ thống",
+          "isAdmin": true,
+          "permissions": [],
+          "counterId": null,
+          "canIssueTicket": false,
+          "branchId": "56a39e0b-0f1c-4778-b56c-b9eae3b46d0a",
+          "ticketForm": "QR_CODE",
+          "defaultPage": null
+        }
+      }
+    }
+
+    Website chỉ cần trường "token". Các trường còn lại dành cho giao diện quầy.
+    (Với tài khoản quản trị, "permissions" trả về rỗng vì quản trị có toàn quyền;
+     tài khoản dịch vụ sẽ liệt kê đầy đủ mã quyền được cấp.)
+
+LỖI:
+    401  Sai tên đăng nhập hoặc mật khẩu
+
+
+--------------------------------------------------------------------------------
+ 4.2  DANH SÁCH SUẤT DIỄN ĐANG MỞ BÁN
+--------------------------------------------------------------------------------
+    GET /api/seating/showtimes/sellable
+    Quyền: chỉ cần đăng nhập
+
+THAM SỐ:
+    date    Ngày cần xem, dạng YYYY-MM-DD.
+            KHÔNG truyền = ngày hôm nay. Xem cảnh báo (0.4).
+    showId  Lọc theo một vở diễn (tuỳ chọn)
+
+VÍ DỤ:
+    GET /api/seating/showtimes/sellable?date=2026-07-24
+
+NHẬN VỀ:
+    {
+      "success": true,
+      "data": [
+        {
+          "id": "ebe12854-e81e-4829-9b4a-7367be8cbd66",
+          "code": "SD260721000030",
+          "start_at": "2026-07-24T15:19:40.057+00:00",
+          "end_at": "2026-07-24T16:49:40.057+00:00",
+          "status": "MO_BAN",
+          "show": {
+            "id": "48b24357-bf9a-4a44-ab12-75f2b6043cf8",
+            "code": "DOC177753-S",
+            "name": "Vở diễn mẫu",
+            "duration_minutes": 90,
+            "age_rating": null,
+            "poster_url": null
+          },
+          "auditorium": {
+            "id": "0fe7ba06-cc57-423f-9dac-67893cdc6f64",
+            "code": "DOC177753",
+            "name": "Phòng tài liệu API",
+            "seat_count": 4
+          },
+          "sold_seats": 0,
+          "total_seats": 4,
+          "available_seats": 4
+        }
+      ]
+    }
+
+GHI CHÚ:
+    - Chỉ trả về suất có status = "MO_BAN"
+    - available_seats dùng để hiện "còn N chỗ"
+    - poster_url và age_rating dùng để hiển thị trên website
+    - Danh sách này KHÔNG kiểm tra sale_open_at, xem cảnh báo (0.5)
+
+
+--------------------------------------------------------------------------------
+ 4.3  CHI TIẾT SUẤT DIỄN + BẢNG GIÁ
+--------------------------------------------------------------------------------
+    GET /api/seating/showtimes/{id}
+    Quyền: KB_SUAT_DIEN_VIEW hoặc VE_BAN_VE_GHE
+
+NHẬN VỀ (rút gọn — bỏ các trường quản trị):
+    {
+      "success": true,
+      "data": {
+        "id": "ebe12854-e81e-4829-9b4a-7367be8cbd66",
+        "code": "SD260721000030",
+        "start_at": "2026-07-24T15:19:40.057+00:00",
+        "end_at": "2026-07-24T16:49:40.057+00:00",
+        "sale_open_at": null,
+        "sale_close_at": null,
+        "status": "MO_BAN",
+        "show": {
+          "id": "48b24357-bf9a-4a44-ab12-75f2b6043cf8",
+          "code": "DOC177753-S",
+          "name": "Vở diễn mẫu",
+          "age_rating": null,
+          "poster_url": null,
+          "duration_minutes": 90
+        },
+        "auditorium": {
+          "id": "0fe7ba06-cc57-423f-9dac-67893cdc6f64",
+          "code": "DOC177753",
+          "name": "Phòng tài liệu API",
+          "grid_cols": 4,
+          "grid_rows": 4,
+          "seat_count": 4,
+          "stage_label": "SAN KHAU",
+          "stage_position": "TRAI"
+        },
+        "prices": [
+          {
+            "price": 350000,
+            "seat_class_id": "4264445d-588c-46dd-b9c4-93706b3f327c",
+            "seat_class": {
+              "id": "4264445d-588c-46dd-b9c4-93706b3f327c",
+              "code": "THUONG",
+              "name": "Ghế thường",
+              "color": "#1B5FAA",
+              "sort_order": 1
+            }
+          }
+        ]
+      }
+    }
+
+GHI CHÚ:
+    - "prices" là bảng giá theo HẠNG GHẾ của riêng suất này.
+      Cùng một vở diễn, hai suất khác nhau có thể có giá khác nhau.
+    - stage_position cho biết sân khấu nằm phía nào, dùng để vẽ sơ đồ:
+      TRAI / PHAI / TREN / DUOI
+
+
+--------------------------------------------------------------------------------
+ 4.4  SƠ ĐỒ GHẾ CỦA SUẤT DIỄN                          [QUAN TRỌNG NHẤT]
+--------------------------------------------------------------------------------
+    GET /api/seating/showtimes/{id}/seat-map
+    Quyền: VE_BAN_VE_GHE hoặc KB_SUAT_DIEN_VIEW
+
+THAM SỐ:
+    holdToken   Nếu truyền vào, những ghế do CHÍNH phiên này đang giữ sẽ có
+                sale_state = "CUA_TOI" thay vì "DANG_GIU".
+                Dùng khi khách quay lại trang chọn ghế mà chưa thanh toán xong.
+
+VÍ DỤ:
+    GET /api/seating/showtimes/ebe12854-.../seat-map?holdToken=8abb1f71-...
+
+NHẬN VỀ:
+    {
+      "success": true,
+      "data": {
+        "showtime": { ...giống mục 4.3... },
+
+        "blocks": [
+          {
+            "id": "813b6c5c-0cc7-4229-b667-9aa4dd41227f",
+            "code": "A",
+            "name": "Khu A",
+            "offset_x": 0,
+            "offset_y": 0,
+            "rotation_deg": 0,
+            "block_rows": 2,
+            "block_cols": 2,
+            "row_gap": 0,
+            "sort_order": 0
+          }
+        ],
+
+        "seats": [
+          {
+            "seat_id": "e4f5668a-09dd-4baa-846e-de3aaa3a62ff",
+            "row_label": "A",
+            "seat_number": 1,
+            "full_label": "A1",
+            "row_index": 0,
+            "col_index": 0,
+            "seat_kind": "THUONG",
+            "seat_state": "SU_DUNG",
+            "pair_key": null,
+            "seat_class_id": "4264445d-588c-46dd-b9c4-93706b3f327c",
+            "seat_class_name": "Ghế thường",
+            "seat_class_color": "#1B5FAA",
+            "price": 350000,
+            "sale_state": "TRONG",
+            "block_id": "813b6c5c-0cc7-4229-b667-9aa4dd41227f",
+            "block_code": "A",
+            "block_name": "Khu A"
+          }
+        ],
+
+        "summary": {
+          "total": 4,
+          "sold": 0,
+          "held": 0,
+          "mine": 0,
+          "broken": 0,
+          "available": 4
+        }
+      }
+    }
+
+CÁCH VẼ SƠ ĐỒ:
+    Khán đài chia thành nhiều KHU (blocks). Mỗi khu là một lưới ghế riêng, có
+    toạ độ và GÓC XOAY riêng trên mặt bằng — vì khán đài hình quạt, các khu hai
+    bên nghiêng về phía sân khấu.
+
+    Vị trí một ghế trên mặt bằng:
+        x = block.offset_x + seat.col_index
+        y = block.offset_y + seat.row_index
+    rồi xoay cả khu quanh gốc của nó theo block.rotation_deg
+    (số dương = xoay theo chiều kim đồng hồ).
+
+    Nhãn hiển thị cho khách: dùng full_label (ví dụ "A1", "H22").
+    Nhãn này DUY NHẤT trong toàn khán đài, không cần ghép thêm tên khu.
+
+sale_state — TRẠNG THÁI BÁN CỦA GHẾ (quyết định màu sắc trên sơ đồ):
+
+    TRONG      Còn trống, chọn được
+    DANG_GIU   Người khác đang giữ, KHÔNG chọn được (hiện màu xám)
+    CUA_TOI    Chính phiên này đang giữ (hiện màu nổi bật)
+    DA_BAN     Đã bán, KHÔNG chọn được
+    HONG       Ghế hỏng/ngưng dùng, KHÔNG chọn được
+    LOI_DI     Ô lối đi, không phải ghế — không vẽ, nhưng vẫn chiếm chỗ trên lưới
+
+    Website chỉ được cho khách chọn ghế có sale_state = "TRONG".
+
+GHI CHÚ:
+    - price là giá của CHÍNH ghế đó trong CHÍNH suất này. Giá khác nhau giữa
+      các hạng ghế.
+    - seat_class_color là mã màu do nhà hát khai báo, dùng luôn để tô sơ đồ
+      cho khớp với màn hình quầy.
+    - pair_key: hai ghế cùng pair_key là GHẾ ĐÔI, phải bán kèm nhau.
+      Nếu khán đài có ghế đôi, website phải tự động chọn cả cặp.
+
+
+--------------------------------------------------------------------------------
+ 4.5  TÍNH THỬ TIỀN
+--------------------------------------------------------------------------------
+    POST /api/seating/seats/preview
+    Quyền: VE_BAN_VE_GHE
+
+    Chỉ tính toán, KHÔNG giữ ghế, KHÔNG tạo dữ liệu. Gọi bao nhiêu lần cũng được.
+
+GỬI LÊN:
+    {
+      "showtime_id": "ebe12854-e81e-4829-9b4a-7367be8cbd66",
+      "seat_ids": [
+        "e4f5668a-09dd-4baa-846e-de3aaa3a62ff",
+        "72897453-80c0-4edc-9b26-4be4104dcb1f"
+      ],
+      "discount_percent": 0,
+      "trade_discount": 0
+    }
+
+NHẬN VỀ:
+    {
+      "success": true,
+      "data": {
+        "lines": [
+          {
+            "seat_id": "72897453-80c0-4edc-9b26-4be4104dcb1f",
+            "seat_label": "A2",
+            "seat_class_id": "4264445d-588c-46dd-b9c4-93706b3f327c",
+            "seat_class_name": "Ghế thường",
+            "unit_price": 350000,
+            "quantity": 1,
+            "discount_percent": 0,
+            "discount_amount": 0,
+            "line_total": 350000,
+            "tax_amount": 0,
+            "service_fee": 0,
+            "net_revenue": 350000,
+            "trade_discount": 0
+          }
+        ],
+        "summary": {
+          "seat_count": 2,
+          "net_revenue": 700000,
+          "discount_amount": 0,
+          "trade_discount": 0,
+          "service_fee": 0,
+          "tax_amount": 0,
+          "total_amount": 700000,
+          "deposit_amount": 0,
+          "remaining_amount": 700000
+        }
+      }
+    }
+
+    Số tiền khách phải trả là summary.total_amount.
+
+GHI CHÚ:
+    - Thuế và phí dịch vụ lấy theo khai báo trong Cấu hình hệ thống, tự động
+      áp vào. Website không cần tự tính.
+    - Nếu nhà hát bật chế độ "giá đã gồm thuế", hệ thống tự tách ngược thuế ra
+      khỏi giá niêm yết — total_amount vẫn là số tiền khách trả.
+    - discount_percent chỉ dùng khi website có chương trình khuyến mãi và nhà
+      hát đã cho phép giảm giá. Mức giảm vượt ngưỡng cho phép sẽ bị từ chối.
+
+
+--------------------------------------------------------------------------------
+ 4.6  GIỮ GHẾ                                        [BƯỚC THEN CHỐT]
+--------------------------------------------------------------------------------
+    POST /api/seating/seats/hold
+    Quyền: VE_BAN_VE_GHE
+
+    Giữ ghế trong 5 PHÚT để khách kịp thanh toán. Gọi NGAY TRƯỚC khi chuyển
+    khách sang cổng thanh toán.
+
+GỬI LÊN:
+    {
+      "showtime_id": "ebe12854-e81e-4829-9b4a-7367be8cbd66",
+      "seat_ids": [
+        "e4f5668a-09dd-4baa-846e-de3aaa3a62ff",
+        "72897453-80c0-4edc-9b26-4be4104dcb1f"
+      ]
+    }
+
+    Tối đa 50 ghế mỗi lần.
+    Có thể truyền thêm "hold_token" để gia hạn / bổ sung ghế cho lượt giữ cũ.
+    Không truyền thì hệ thống tự sinh token mới.
+
+NHẬN VỀ (HTTP 200):
+    {
+      "success": true,
+      "data": {
+        "hold_token": "8abb1f71-e1c0-4efc-b788-a3dbbc062413",
+        "expires_at": "2026-07-21T15:24:41.555Z",
+        "ttl_seconds": 300,
+        "seat_ids": [
+          "e4f5668a-09dd-4baa-846e-de3aaa3a62ff",
+          "72897453-80c0-4edc-9b26-4be4104dcb1f"
+        ]
+      }
+    }
+
+    LƯU hold_token lại. Bước xuất vé bắt buộc phải có nó.
+    Hiện đồng hồ đếm ngược tới expires_at cho khách thấy.
+
+LỖI 409 — CÓ GHẾ KHÔNG GIỮ ĐƯỢC:
+    {
+      "success": false,
+      "message": "Không giữ được ghế: A1 (Ghế đang được giữ bởi quầy khác), A2 ...",
+      "details": {
+        "blocked": [
+          {
+            "seat_id": "e4f5668a-09dd-4baa-846e-de3aaa3a62ff",
+            "seat_label": "A1",
+            "reason": "Ghế đang được giữ bởi quầy khác"
+          },
+          {
+            "seat_id": "72897453-80c0-4edc-9b26-4be4104dcb1f",
+            "seat_label": "A2",
+            "reason": "Ghế đang được giữ bởi quầy khác"
+          }
+        ]
+      }
+    }
+
+    QUY TẮC "ĐƯỢC ĂN CẢ, NGÃ VỀ KHÔNG":
+    Chỉ cần MỘT ghế bị chặn là TOÀN BỘ lượt giữ thất bại — không có chuyện giữ
+    được một nửa. Website phải tải lại sơ đồ ghế và báo khách chọn lại.
+
+    Trường details.blocked cho biết chính xác ghế nào hỏng và vì sao, dùng để
+    tô đỏ đúng ghế đó trên sơ đồ.
+
+LỖI 409 KHÁC:
+    "Suất diễn đang ở trạng thái ... , không bán vé được"
+    "Đã quá thời gian mở bán của suất diễn này"
+
+
+--------------------------------------------------------------------------------
+ 4.7  NHẢ GHẾ
+--------------------------------------------------------------------------------
+    POST /api/seating/seats/release
+    Quyền: VE_BAN_VE_GHE
+
+    Trả ghế lại cho người khác mua. GỌI NGAY khi khách huỷ hoặc thanh toán
+    thất bại — đừng để ghế bị khoá vô ích đủ 5 phút.
+
+GỬI LÊN:
+    {
+      "hold_token": "8abb1f71-e1c0-4efc-b788-a3dbbc062413"
+    }
+
+NHẬN VỀ:
+    {
+      "success": true,
+      "data": { "released": 2 }
+    }
+
+    Gọi lại nhiều lần không gây lỗi (released = 0).
+
+
+--------------------------------------------------------------------------------
+ 4.8  XUẤT VÉ                                        [TẠO DỮ LIỆU THẬT]
+--------------------------------------------------------------------------------
+    POST /api/seating/seats/issue
+    Quyền: VE_BAN_VE_GHE
+
+    CHỈ GỌI SAU KHI ĐÃ NHẬN KẾT QUẢ THANH TOÁN THÀNH CÔNG.
+    Endpoint này tạo hóa đơn và vé thật, sinh mã vé, và nhả lượt giữ ghế.
+
+GỬI LÊN:
+    {
+      "showtime_id": "ebe12854-e81e-4829-9b4a-7367be8cbd66",
+      "seat_ids": [
+        "e4f5668a-09dd-4baa-846e-de3aaa3a62ff",
+        "72897453-80c0-4edc-9b26-4be4104dcb1f"
+      ],
+      "hold_token": "8abb1f71-e1c0-4efc-b788-a3dbbc062413",
+
+      "booker_name":  "Nguyễn Văn A",
+      "booker_phone": "0901234567",
+      "booker_email": "a@example.com",
+
+      "payments": [
+        {
+          "payment_method_id": "<id của hình thức VNPAY, lấy ở mục 4.11>",
+          "amount": 700000,
+          "external_txn_id": "VNPAY-123456",
+          "description": "Thanh toán online qua VNPay"
+        }
+      ]
+    }
+
+CÁC TRƯỜNG:
+    showtime_id       BẮT BUỘC
+    seat_ids          BẮT BUỘC — phải TRÙNG KHỚP với danh sách đã giữ ở bước 4.6
+    hold_token        BẮT BUỘC — token nhận được từ bước giữ ghế
+
+    booker_name       Tên khách (nên có, để in lên vé và tra cứu)
+    booker_phone      Số điện thoại khách
+    booker_email      Email khách — dùng để gửi vé
+    note              Ghi chú tự do
+
+    payments          BẮT BUỘC. Tổng amount PHẢI BẰNG ĐÚNG total_amount ở mục 4.5
+      payment_method_id   BẮT BUỘC là id của hình thức "VNPAY" (mục 4.11).
+                          Gửi hình thức khác -> HTTP 403.
+      amount              Số tiền
+      external_txn_id     MÃ GIAO DỊCH của cổng thanh toán — RẤT NÊN GHI,
+                          để sau này đối soát vé với sao kê ngân hàng
+      description         Diễn giải
+
+    buyer_tax_code    Mã số thuế (nếu khách cần hóa đơn điện tử)
+    buyer_name        Tên đơn vị mua
+    buyer_address     Địa chỉ đơn vị mua
+    einvoice_mode     KHONG_XUAT | XUAT_SAU | XUAT_TAI_THOI_DIEM_BAN
+                      (mặc định KHONG_XUAT)
+
+    discount_percent  Giảm giá theo % (mặc định 0)
+    trade_discount    Chiết khấu thương mại, số tiền (mặc định 0)
+
+NHẬN VỀ (HTTP 201):
+    {
+      "success": true,
+      "data": {
+        "id": "ad5eaaa2-754c-46b8-bf9a-03caa4e1948c",
+        "code": "HD260721000017",
+        "booker_name": "Nguyễn Văn A",
+        "booker_phone": "0901234567",
+        "booker_email": "a@example.com",
+        "use_date": "2026-07-24",
+        "net_revenue": 700000,
+        "discount_amount": 0,
+        "service_fee": 0,
+        "tax_amount": 0,
+        "total_amount": 700000,
+        "paid_amount": 700000,
+        "remaining_amount": 0,
+        "issued_at": "2026-07-21T15:19:42.439546+00:00",
+        "cashier": {
+          "id": "9fa91fc4-2b33-4bb4-b1c7-95a8a0b0098b",
+          "username": "admin",
+          "full_name": "Quản trị viên"
+        },
+        "tickets": [
+          {
+            "id": "7602a417-f52e-40bf-b40d-e6903175d4fa",
+            "code": "VE260721000034",
+            "status": "CON_HIEU_LUC",
+            "seat_id": "72897453-80c0-4edc-9b26-4be4104dcb1f",
+            "seat_label": "A2",
+            "seat_class_name": "Ghế thường",
+            "showtime_id": "ebe12854-e81e-4829-9b4a-7367be8cbd66",
+            "ticket_name": "Vở diễn mẫu — 24/07/2026 22:19 — Ghế A2",
+            "ticket_form": "QR_CODE",
+            "unit_price": 350000,
+            "line_total": 350000,
+            "discount_amount": 0,
+            "discount_percent": 0,
+            "quantity": 1,
+            "use_date": "2026-07-24",
+            "valid_from": "2026-07-24T15:19:40.057+00:00",
+            "valid_until": "2026-07-24T16:49:40.057+00:00",
+            "usage_limit": 1,
+            "reprint_count": 0,
+            "card_number": null,
+            "is_master": false,
+            "ticket": null
+          }
+        ]
+      }
+    }
+
+    LƯU LẠI:
+      - data.id    -> để lấy vé + mã QR ở mục 4.9
+      - data.code  -> mã hóa đơn, cho khách tra cứu
+      - tickets[].code -> MÃ VÉ, chính là nội dung mã QR
+
+LỖI 400 — TRẢ THIẾU/THỪA TIỀN:
+    {
+      "success": false,
+      "message": "Còn phải thanh toán 200.000 đ — hoàn tất thanh toán trước khi xuất vé"
+    }
+
+LỖI 409 — HẾT HẠN GIỮ GHẾ:
+    {
+      "success": false,
+      "message": "Lượt giữ ghế đã hết hạn hoặc ghế đã bị người khác lấy. Vui lòng chọn lại ghế."
+    }
+
+    TÌNH HUỐNG NGUY HIỂM: khách ĐÃ TRẢ TIỀN nhưng vé không xuất được.
+    Xem mục 6 để biết cách xử lý.
+
+LỖI 409 — GHẾ BỊ QUẦY KHÁC BÁN MẤT:
+    {
+      "success": false,
+      "message": "Một hoặc nhiều ghế vừa được quầy khác bán mất. Vui lòng chọn lại ghế."
+    }
+
+    Hệ thống có hai lớp bảo vệ chống bán trùng ghế: lớp giữ mềm 5 phút, và lớp
+    khoá cứng ở cơ sở dữ liệu. Thông báo này là lớp thứ hai kích hoạt. Trường
+    hợp này hóa đơn rỗng đã được tự động dọn, không để lại rác.
+
+
+--------------------------------------------------------------------------------
+ 4.9  LẤY VÉ ĐỂ GỬI KHÁCH (KÈM MÃ QR)
+--------------------------------------------------------------------------------
+    GET /api/sales/invoices/{invoice_id}/print-data
+    Quyền: VE_DA_BAN_VIEW
+
+    Trả về toàn bộ vé của một hóa đơn, mỗi vé kèm sẵn ẢNH MÃ QR.
+    Dùng để dựng email vé điện tử hoặc trang "vé của tôi".
+
+NHẬN VỀ:
+    {
+      "success": true,
+      "data": {
+        "printed_at": "2026-07-21T15:19:42.965Z",
+
+        "company": {
+          "name": "Nhà hát",
+          "tax_code": "",
+          "address": "",
+          "phone": null,
+          "email": null,
+          "website": null,
+          "logo_url": null,
+          "currency": "VND"
+        },
+
+        "tickets": [
+          {
+            "id": "7602a417-f52e-40bf-b40d-e6903175d4fa",
+            "code": "VE260721000034",
+            "qr_data_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+
+            "title": "Vở diễn mẫu",
+            "subtitle": null,
+            "seat_label": "A2",
+            "seat_class_name": "Ghế thường",
+            "auditorium_name": "Phòng tài liệu API",
+            "show_code": "DOC177753-S",
+            "start_at": "2026-07-24T15:19:40.057+00:00",
+            "end_at": "2026-07-24T16:49:40.057+00:00",
+
+            "quantity": 1,
+            "unit_price": 350000,
+            "discount_amount": 0,
+            "line_total": 350000,
+
+            "use_date": "2026-07-24",
+            "valid_from": "2026-07-24T15:19:40.057+00:00",
+            "valid_until": "2026-07-24T16:49:40.057+00:00",
+            "usage_limit": 1,
+            "status": "CON_HIEU_LUC",
+
+            "reprint_count": 0,
+            "is_reprint": false,
+
+            "invoice_code": "HD260721000017",
+            "issued_at": "2026-07-21T15:19:42.439546+00:00",
+            "cashier": "Quản trị viên",
+            "sales_point": null,
+            "counter": null,
+            "customer": null,
+            "card_number": null
+          }
+        ]
+      }
+    }
+
+VỀ MÃ QR:
+    qr_data_url là ảnh PNG đã mã hoá base64, nhúng thẳng vào HTML được:
+
+        <img src="data:image/png;base64,iVBORw0..." alt="Mã QR vé">
+
+    Nội dung bên trong mã QR là ĐÚNG chuỗi mã vé (ví dụ "VE260721000034"),
+    không bọc JSON, không bọc đường dẫn. Máy quét ở cổng đọc ra chuỗi này và
+    tra thẳng vào hệ thống.
+
+    => Nếu website tự sinh mã QR thay vì dùng ảnh có sẵn, PHẢI mã hoá đúng
+       chuỗi code, không thêm bớt ký tự nào. Sai một ký tự là vé không quét được
+       và chỉ phát hiện khi khách đã đứng ở cổng.
+
+LẤY MỘT SỐ VÉ CỤ THỂ (không lấy cả hóa đơn):
+    POST /api/sales/print-data
+    {
+      "issued_ticket_ids": ["7602a417-...", "9bb32f75-..."]
+    }
+    Tối đa 200 vé. Thứ tự vé trả về đúng thứ tự gửi lên.
+
+    Endpoint này CHỈ ĐỌC, không tính là một lần in lại vé.
+
+
+--------------------------------------------------------------------------------
+ 4.10  TRA CỨU VÉ
+--------------------------------------------------------------------------------
+    GET /api/ticket-check?code={mã vé}
+    Quyền: VE_KIEM_TRA
+
+    Dùng cho trang "kiểm tra vé của tôi". Chỉ tra cứu, KHÔNG ghi nhận lượt vào cửa.
+
+VÍ DỤ:
+    GET /api/ticket-check?code=VE260721000034
+
+NHẬN VỀ:
+    {
+      "success": true,
+      "data": {
+        "found": true,
+        "valid": true,
+        "scanned_code": "VE260721000034",
+        "message": "Vé hợp lệ",
+        "ticket": {
+          "id": "7602a417-f52e-40bf-b40d-e6903175d4fa",
+          "code": "VE260721000034",
+          "ticket_name": "Vở diễn mẫu — 24/07/2026 22:19 — Ghế A2",
+          "status": "CON_HIEU_LUC",
+          "seat_label": "A2",
+          "seat_class_name": "Ghế thường",
+          "valid_from": "2026-07-24T15:19:40.057+00:00",
+          "valid_until": "2026-07-24T16:49:40.057+00:00",
+          "usage_limit": 1,
+          "showtime": {
+            "start_at": "2026-07-24T15:19:40.057+00:00",
+            "end_at": "2026-07-24T16:49:40.057+00:00",
+            "show": { "code": "DOC177753-S", "name": "Vở diễn mẫu" },
+            "auditorium": { "code": "DOC177753", "name": "Phòng tài liệu API" }
+          },
+          "invoice": {
+            "id": "ad5eaaa2-754c-46b8-bf9a-03caa4e1948c",
+            "code": "HD260721000017",
+            "issued_at": "2026-07-21T15:19:42.439546+00:00"
+          },
+          "usage": []
+        }
+      }
+    }
+
+KHÔNG TÌM THẤY (vẫn là HTTP 200):
+    {
+      "success": true,
+      "data": {
+        "found": false,
+        "valid": false,
+        "scanned_code": "VE000000999999",
+        "message": "Không tìm thấy vé/thẻ"
+      }
+    }
+
+    LƯU Ý: mã vé không tồn tại KHÔNG trả về HTTP 404. Website phải kiểm tra
+    trường data.found, không dựa vào mã HTTP.
+
+    Mã vé chỉ chấp nhận chữ, số, gạch ngang, gạch dưới. Mã chứa ký tự khác bị
+    từ chối với found = false.
+
+CÁC LÝ DO valid = false:
+    "Vé đã hoàn"                    khách đã được hoàn tiền
+    "Vé đã đổi"                     vé đã đổi sang vé khác
+    "Vé đã hết lượt sử dụng"        đã vào cửa đủ số lượt
+    "Vé đã hết hạn"
+    "Vé đã hết thời gian sử dụng"   quá valid_until
+
+
+--------------------------------------------------------------------------------
+ 4.11  DANH MỤC HÌNH THỨC THANH TOÁN
+--------------------------------------------------------------------------------
+    GET /api/catalogs/payment-methods/options
+
+NHẬN VỀ:
+    {
+      "success": true,
+      "data": [
+        { "id": "41e0a8c6-cb59-43e8-8c47-d259bc681b6b", "code": "CK",  "name": "Chuyển khoản" },
+        { "id": "57482a4b-58e3-493a-b2af-8f5abab4a4f6", "code": "THE", "name": "Thẻ" }
+      ]
+    }
+
+    WEBSITE CHỈ ĐƯỢC DÙNG "VNPAY".
+    Máy chủ TỪ CHỐI mọi hình thức khác với HTTP 403:
+
+        {
+          "success": false,
+          "message": "Tài khoản này không được thanh toán bằng: Chuyển khoản.
+                      Chỉ được dùng: VNPay (online)."
+        }
+
+    Chặn cả trường hợp trộn: gửi một khoản VNPay + một khoản tiền mặt cũng bị
+    từ chối toàn bộ.
+
+    Lý do khai báo riêng "VNPAY" thay vì dùng chung "Chuyển khoản": báo cáo
+    doanh thu tách được kênh online với kênh bán tại quầy, và đối soát được với
+    sao kê VNPay.
+
+    Gọi endpoint này MỘT LẦN lúc khởi động, lọc lấy phần tử có code = "VNPAY",
+    nhớ id lại. Không gọi ở mỗi giao dịch.
+
+
+================================================================================
+ 4B. THANH TOÁN VNPAY  — LUỒNG CHÍNH CỦA WEBSITE BÁN VÉ ONLINE
+================================================================================
+
+Hệ thống vé đã tích hợp sẵn VNPay. Website CHỈ gọi 2 endpoint.
+
+
+--------------------------------------------------------------------------------
+ 4B.1  VÌ SAO KHÔNG TỰ GHÉP CỔNG THANH TOÁN
+--------------------------------------------------------------------------------
+
+Cách làm tự nhiên mà SAI:
+
+    website giữ ghế -> website thu tiền -> website gọi API xuất vé
+
+Cách này để hở một khoảng chết: tiền đã trừ của khách nhưng lệnh xuất vé hỏng
+(hết hạn giữ ghế, mất mạng, website sập giữa chừng). Khách mất tiền, không có vé,
+và hệ thống vé KHÔNG HỀ BIẾT chuyện đó đã xảy ra.
+
+Cách hệ thống đang làm:
+
+    website tạo đơn -> khách trả tiền ở VNPay
+                          |
+                          v
+              VNPay gọi thẳng IPN về MÁY CHỦ VÉ
+                          |
+                          v
+                 máy chủ vé xuất vé ngay tại chỗ
+
+Không có trung gian. Website sập giữa chừng cũng không mất đơn nào — vé vẫn được
+xuất, khách vẫn nhận được.
+
+
+--------------------------------------------------------------------------------
+ 4B.2  SƠ ĐỒ LUỒNG
+--------------------------------------------------------------------------------
+
+  BƯỚC 1  Khách chọn suất, chọn ghế  (mục 4.2, 4.4, 4.5)
+              |
+  BƯỚC 2  Khách bấm "Thanh toán"
+          POST /payments/vnpay/orders
+              -> hệ thống giữ ghế 15 phút, trả về pay_url
+              |
+  BƯỚC 3  Chuyển trình duyệt khách sang pay_url
+              |
+              |   Khách trả tiền trên trang VNPay
+              |
+              +---> VNPay gọi IPN về máy chủ vé  ===> VÉ ĐƯỢC XUẤT TỰ ĐỘNG
+              |     (đường quyết định, website không cần làm gì)
+              |
+              +---> VNPay chuyển trình duyệt khách về VNPAY_RETURN_URL
+                    (trang kết quả của WEBSITE)
+              |
+  BƯỚC 4  Trang kết quả gọi
+          GET /payments/vnpay/orders/{order_code}
+              -> status = HOAN_TAT thì hiện vé cho khách
+              |
+  BƯỚC 5  Lấy vé kèm mã QR để hiện / gửi email  (mục 4.9)
+          GET /sales/invoices/{invoice_id}/print-data
+
+
+--------------------------------------------------------------------------------
+ 4B.3  TẠO ĐƠN VÀ LẤY ĐƯỜNG DẪN THANH TOÁN
+--------------------------------------------------------------------------------
+    POST /api/payments/vnpay/orders
+    Quyền: VE_BAN_VE_GHE
+
+GỬI LÊN:
+    {
+      "showtime_id": "ebe12854-e81e-4829-9b4a-7367be8cbd66",
+      "seat_ids": [
+        "e4f5668a-09dd-4baa-846e-de3aaa3a62ff",
+        "72897453-80c0-4edc-9b26-4be4104dcb1f"
+      ],
+      "booker_name":  "Nguyễn Văn A",
+      "booker_phone": "0901234567",
+      "booker_email": "a@example.com"
+    }
+
+    booker_email nên có: dùng để gửi vé điện tử cho khách.
+    bank_code    (tuỳ chọn) ép sẵn ngân hàng; bỏ trống để khách tự chọn ở VNPay.
+    locale       (tuỳ chọn) "vn" | "en".
+
+    KHÔNG gửi số tiền. Máy chủ tự tính lại theo bảng giá của suất — website
+    không thể tự khai giá.
+
+NHẬN VỀ (HTTP 201):
+    {
+      "success": true,
+      "data": {
+        "order_code": "OL260721000003",
+        "pay_url": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=...",
+        "amount": 500000,
+        "expires_at": "2026-07-21T16:05:12.345Z",
+        "timeout_minutes": 15,
+        "seat_count": 2
+      }
+    }
+
+    LƯU order_code lại — đây là chìa khoá tra cứu đơn về sau.
+    Chuyển trình duyệt khách sang pay_url (redirect 302, không mở tab mới).
+
+    Ghế được giữ NGUYÊN 15 phút, không phải 5 phút như bán tại quầy — đủ để
+    khách nhập OTP và xác thực ngân hàng.
+
+LỖI 409 — GHẾ ĐÃ BỊ NGƯỜI KHÁC LẤY:
+    Cấu trúc giống mục 4.6, có details.blocked cho biết ghế nào hỏng.
+    Xử lý: tải lại sơ đồ ghế, báo khách chọn lại.
+
+LỖI 400 — CHƯA KHAI BÁO VNPAY:
+    "Chưa khai báo VNPay. Thêm VNPAY_TMN_CODE và VNPAY_HASH_SECRET..."
+    Kiểm tra trước bằng: GET /api/payments/vnpay/status
+
+
+--------------------------------------------------------------------------------
+ 4B.3b  MÃ QR ĐỘNG — KHÁCH KHÔNG RỜI TRANG
+--------------------------------------------------------------------------------
+    POST /api/payments/vnpay/qr-orders
+    Quyền: VE_BAN_VE_GHE
+
+    Khác 4B.3: KHÔNG chuyển khách sang trang VNPay. Máy chủ lấy chuỗi QR về,
+    website/quầy tự vẽ mã QR lên màn hình mình. Khách quét bằng app ngân hàng,
+    trả xong thì IPN báo về và vé xuất tự động.
+
+    Dùng ở QUẦY VÉ là hợp lý nhất: không ai đưa màn hình quầy cho khách bấm.
+
+GỬI LÊN: giống 4B.3 nhưng KHÔNG có bank_code
+    {
+      "showtime_id": "...",
+      "seat_ids": ["...", "..."],
+      "booker_name": "Nguyễn Văn A",
+      "booker_phone": "0901234567",
+      "booker_email": "a@example.com"
+    }
+
+NHẬN VỀ (HTTP 201):
+    {
+      "success": true,
+      "data": {
+        "order_code": "OL260722000015",
+        "qr_content": "00020101021226280010A00000077501...",
+        "qr_data_url": "data:image/png;base64,iVBORw0KGgo...",
+        "amount": 500000,
+        "expires_at": "2026-07-22T16:05:12.345Z",
+        "timeout_minutes": 15,
+        "seat_count": 2
+      }
+    }
+
+    qr_data_url là ảnh PNG đã vẽ sẵn ở máy chủ — nhúng thẳng vào HTML:
+        <img src="data:image/png;base64,iVBORw0..." alt="Quét để thanh toán">
+    Không cần thư viện vẽ QR ở phía giao diện.
+
+    qr_content là chuỗi QR gốc (chuẩn EMVCo), dùng khi muốn tự vẽ theo kiểu
+    riêng hoặc đẩy ra màn hình phụ / máy in.
+
+SAU ĐÓ LÀM GÌ:
+    Khách quét bằng điện thoại của họ — trang của bạn KHÔNG biết chuyện gì đang
+    xảy ra. Phải TỰ HỎI LẠI trạng thái đơn mỗi 3 giây:
+
+        GET /api/payments/vnpay/orders/{order_code}
+
+    tới khi status khác CHO_THANH_TOAN. Xem bảng trạng thái ở mục 4B.4.
+
+LỖI 400 — CHƯA CÓ QUYỀN QR ĐỘNG:
+    {
+      "success": false,
+      "message": "VNPay không trả về dữ liệu QR. Nhiều khả năng tài khoản
+                  merchant chưa được cấp quyền \"Merchant hosted QR\" (QR động).
+                  Liên hệ VNPay để bật, hoặc dùng chế độ chuyển hướng với
+                  bank_code = VNPAYQR."
+    }
+
+    Lệnh này KHÔNG tự có khi đăng ký cổng thanh toán thường — phải đề nghị VNPay
+    cấp thêm. Khi bị từ chối, hệ thống NHẢ GHẾ NGAY chứ không khoá 15 phút.
+
+CÁCH THAY THẾ KHÔNG CẦN XIN QUYỀN:
+    Gọi 4B.3 với "bank_code": "VNPAYQR" — khách vẫn được chuyển sang trang
+    VNPay, nhưng trang đó hiện thẳng mã QR thay vì bắt chọn ngân hàng. Dùng
+    được ngay, chỉ khác ở chỗ khách rời khỏi trang của mình.
+
+
+--------------------------------------------------------------------------------
+ 4B.4  TRA CỨU TRẠNG THÁI ĐƠN
+--------------------------------------------------------------------------------
+    GET /api/payments/vnpay/orders/{order_code}
+    Quyền: VE_BAN_VE_GHE
+
+    Gọi ở trang kết quả sau khi VNPay chuyển khách về.
+
+NHẬN VỀ:
+    {
+      "success": true,
+      "data": {
+        "code": "OL260721000003",
+        "status": "HOAN_TAT",
+        "paid": true,
+        "ticket_ready": true,
+        "amount": 500000,
+        "seat_ids": [ ... ],
+        "booker_name": "Nguyễn Văn A",
+        "booker_email": "a@example.com",
+        "invoice_id": "ad5eaaa2-754c-46b8-bf9a-03caa4e1948c",
+        "invoice": { "id": "...", "code": "HD260721000017", "total_amount": 500000 },
+        "vnp_transaction_no": "14312345",
+        "vnp_bank_code": "NCB",
+        "vnp_pay_date": "20260721153000",
+        "paid_at": "2026-07-21T15:30:02.123Z",
+        "completed_at": "2026-07-21T15:30:02.456Z",
+        "expires_at": "2026-07-21T16:05:12.345Z",
+        "error_message": null,
+        "showtime": {
+          "code": "SD260721000030",
+          "start_at": "2026-07-24T15:19:40.057+00:00",
+          "show": { "code": "...", "name": "Vở diễn mẫu" },
+          "auditorium": { "code": "...", "name": "Khán đài Nhà hát Seaphony" }
+        }
+      }
+    }
+
+    Hai trường tiện dùng cho giao diện:
+        paid          đã trừ tiền của khách hay chưa
+        ticket_ready  vé đã xuất xong chưa (chỉ true khi status = HOAN_TAT)
+
+TRẠNG THÁI ĐƠN (status) — WEBSITE HIỂN THỊ GÌ:
+
+    CHO_THANH_TOAN  Đang chờ khách trả tiền.
+                    -> Hiện "Đang xử lý", tự tải lại sau 2-3 giây.
+                       IPN thường về trong vài giây.
+
+    HOAN_TAT        Xong. Đã trừ tiền, vé đã xuất.
+                    -> Hiện vé + mã QR (mục 4.9), gửi email cho khách.
+
+    THAT_BAI        Khách huỷ hoặc ngân hàng từ chối. KHÔNG trừ tiền.
+                    -> Hiện error_message, mời khách đặt lại.
+                       Ghế đã được nhả tự động.
+
+    HET_HAN         Quá 15 phút, khách không trả tiền. KHÔNG trừ tiền.
+                    -> Mời khách đặt lại.
+
+    LOI_XUAT_VE     ĐÃ TRỪ TIỀN NHƯNG XUẤT VÉ HỎNG.
+                    -> Xem mục 4B.6. Đây là trường hợp phải có người xử lý.
+
+    LƯU Ý: chỉ dựa vào status trả về từ endpoint này. KHÔNG dựa vào tham số trên
+    thanh địa chỉ mà VNPay chuyển về — khách sửa được URL đó.
+
+
+--------------------------------------------------------------------------------
+ 4B.5  ĐỐI CHIẾU KHI IPN KHÔNG TỚI  (tuỳ chọn, là lưới an toàn)
+--------------------------------------------------------------------------------
+    POST /api/payments/vnpay/return
+    Quyền: VE_BAN_VE_GHE
+
+    IPN là đường quyết định, nhưng nó cần máy chủ vé MỞ RA INTERNET để VNPay gọi
+    vào được. Nếu máy chủ nằm sau tường lửa hoặc chưa mở cổng, IPN không tới và
+    đơn treo mãi ở CHO_THANH_TOAN dù khách đã trả tiền.
+
+    Endpoint này là lối thoát: website chuyển NGUYÊN VẸN query string mà VNPay
+    gắn vào Return URL, máy chủ tự kiểm chữ ký rồi chốt đơn.
+
+GỬI LÊN — nguyên các tham số vnp_* nhận được, không sửa gì:
+    {
+      "vnp_Amount": "50000000",
+      "vnp_BankCode": "NCB",
+      "vnp_ResponseCode": "00",
+      "vnp_TransactionStatus": "00",
+      "vnp_TxnRef": "OL260721000003",
+      "vnp_TransactionNo": "14312345",
+      "vnp_SecureHash": "abc123...",
+      ...
+    }
+
+NHẬN VỀ:
+    {
+      "success": true,
+      "data": {
+        "rsp_code": "00",
+        "message": "Confirm Success",
+        "order": { ... giống mục 4B.4 ... }
+      }
+    }
+
+    Chạy CÙNG một hàm với IPN nên gọi bao nhiêu lần cũng không xuất vé hai lần.
+    Chữ ký vẫn được kiểm đầy đủ — khách sửa tham số trên URL thì rsp_code = 97.
+
+    KHUYẾN NGHỊ: gọi endpoint này ở trang kết quả, rồi mới gọi 4B.4. Như vậy
+    đơn được chốt kể cả khi IPN chưa/không tới.
+
+
+--------------------------------------------------------------------------------
+ 4B.6  KHI ĐÃ TRỪ TIỀN MÀ VÉ KHÔNG XUẤT ĐƯỢC  (status = LOI_XUAT_VE)
+--------------------------------------------------------------------------------
+
+Nguyên nhân gần như luôn là: khách trả tiền quá chậm, hết hạn giữ ghế, và ghế đã
+bị người khác mua mất trong lúc đó.
+
+Hệ thống KHÔNG im lặng bỏ qua: đơn được ghi rõ trạng thái LOI_XUAT_VE kèm
+error_message, và khoản tiền vẫn có dấu vết đầy đủ (vnp_transaction_no, paid_at).
+
+VIỆC WEBSITE PHẢI LÀM:
+    - Hiện cho khách: "Thanh toán thành công nhưng chưa xuất được vé, bộ phận
+      chăm sóc khách hàng sẽ liên hệ trong ít phút"
+    - Báo ngay cho bộ phận vận hành (email/Slack/Zalo)
+    - TUYỆT ĐỐI không hiện "Thanh toán thất bại" — khách đã mất tiền thật
+
+VIỆC NHÂN VIÊN NHÀ HÁT LÀM:
+    Thử xuất bù:
+        POST /api/payments/vnpay/orders/{order_code}/retry-issue
+
+    Ghế còn trống thì vé được xuất, đơn chuyển sang HOAN_TAT.
+    Ghế đã bị người khác mua thì lệnh này báo lỗi rõ ràng — khi đó phải HOÀN TIỀN
+    cho khách qua trang quản trị VNPay.
+
+TÌM CÁC ĐƠN CẦN XỬ LÝ:
+    GET /api/payments/vnpay/orders?status=LOI_XUAT_VE
+    Quyền: VE_DA_BAN_VIEW
+
+    Nên có người kiểm danh sách này mỗi ngày.
+
+
+--------------------------------------------------------------------------------
+ 4B.7  IPN — WEBSITE KHÔNG ĐỘNG VÀO
+--------------------------------------------------------------------------------
+    GET /api/payments/vnpay/ipn
+    CÔNG KHAI — không cần đăng nhập
+
+    Chỉ máy chủ VNPay gọi endpoint này. Ghi ở đây để bên vận hành biết mà mở
+    tường lửa, KHÔNG PHẢI để website gọi.
+
+    Không có token vì máy chủ VNPay không có tài khoản trong hệ thống. Bảo vệ
+    bằng CHỮ KÝ HMAC-SHA512: mọi tham số đều bị kiểm chữ ký trước khi tin. Gói
+    tin không có chữ ký đúng bị trả về mã 97 và không đụng được vào đơn nào.
+
+    ĐỊA CHỈ CẦN KHAI BÁO trong trang quản trị merchant VNPay:
+        https://ticket-api-tamchuc.vercel.app/api/payments/vnpay/ipn
+
+    Máy chủ vé phải truy cập được từ Internet thì IPN mới tới. Nếu không mở
+    được, dùng lưới an toàn ở mục 4B.5.
+
+
+--------------------------------------------------------------------------------
+ 4B.8  KIỂM TRA ĐÃ KHAI BÁO VNPAY CHƯA
+--------------------------------------------------------------------------------
+    GET /api/payments/vnpay/status
+
+    { "success": true, "data": { "configured": true } }
+
+    Dùng để bật/tắt nút "Thanh toán online" trên website.
+
+
+--------------------------------------------------------------------------------
+ 4B.9  CẤU HÌNH PHÍA MÁY CHỦ VÉ  (backend/.env)
+--------------------------------------------------------------------------------
+
+    VNPAY_TMN_CODE=          Mã website, lấy trong trang quản trị merchant VNPay
+    VNPAY_HASH_SECRET=       Khoá bí mật — KHÔNG đưa cho website, không đưa lên git
+    VNPAY_PAY_URL=           sandbox: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+                             thật   : https://vnpayment.vn/paymentv2/vpcpay.html
+    VNPAY_RETURN_URL=        Trang kết quả của WEBSITE.
+                             PHẢI khai báo TRÙNG KHỚP trong trang quản trị VNPay.
+    VNPAY_TIMEOUT_MINUTES=15 Thời gian khách được trả tiền, cũng là thời gian giữ ghế
+
+    Để trống TMN_CODE/HASH_SECRET thì tính năng bán online tắt, bán vé tại quầy
+    vẫn chạy bình thường.
+
+    Nếu máy chủ chạy sau nginx hoặc cân bằng tải, đặt thêm TRUST_PROXY=1 để đọc
+    đúng IP của khách. Không có nó thì VNPay nhận sai vnp_IpAddr và bộ giới hạn
+    tần suất gộp mọi khách vào chung một mối.
+
+
+--------------------------------------------------------------------------------
+ 4B.10  VÍ DỤ MÃ NGUỒN  (Node.js, chạy ở MÁY CHỦ website)
+--------------------------------------------------------------------------------
+
+// ---- Khách bấm "Thanh toán" ----
+app.post('/dat-ve', async (req, res) => {
+  const { showtimeId, seatIds, khach } = req.body;
+
+  const don = await call('POST', '/payments/vnpay/orders', {
+    showtime_id: showtimeId,
+    seat_ids: seatIds,
+    booker_name:  khach.ten,
+    booker_phone: khach.dienThoai,
+    booker_email: khach.email,
+  });
+
+  // Lưu order_code vào phiên để trang kết quả tra lại
+  req.session.orderCode = don.order_code;
+
+  // Chuyển khách sang VNPay
+  res.redirect(don.pay_url);
+});
+
+
+// ---- VNPay chuyển khách về (VNPAY_RETURN_URL) ----
+app.get('/thanh-toan/ket-qua', async (req, res) => {
+  // Chốt đơn ngay, phòng khi IPN chưa/không tới.
+  // Máy chủ tự kiểm chữ ký, nên không cần tin dữ liệu trên URL.
+  await call('POST', '/payments/vnpay/return', req.query).catch(() => {});
+
+  const don = await call('GET', `/payments/vnpay/orders/${req.query.vnp_TxnRef}`);
+
+  if (don.status === 'HOAN_TAT') {
+    const ve = await call('GET', `/sales/invoices/${don.invoice_id}/print-data`);
+    await guiEmailVe(don.booker_email, ve.tickets);   // hàm của website bạn
+    return res.render('thanh-cong', { don, ve: ve.tickets });
+  }
+
+  if (don.status === 'LOI_XUAT_VE') {
+    // ĐÃ TRỪ TIỀN mà chưa có vé — báo vận hành, KHÔNG nói "thất bại" với khách
+    await baoVanHanh(don);
+    return res.render('cho-xu-ly', { don });
+  }
+
+  if (don.status === 'CHO_THANH_TOAN') {
+    // IPN chưa về — trang tự tải lại sau vài giây
+    return res.render('dang-xu-ly', { orderCode: don.code });
+  }
+
+  // THAT_BAI hoặc HET_HAN — không trừ tiền, mời khách đặt lại
+  return res.render('that-bai', { lyDo: don.error_message });
+});
+
+
+================================================================================
+ 5. BẢNG MÃ TRẠNG THÁI
+================================================================================
+
+TRẠNG THÁI SUẤT DIỄN (showtime.status):
+    NHAP          Đang soạn, chưa mở bán
+    MO_BAN        Đang bán vé          <- chỉ trạng thái này mới bán được
+    NGUNG_BAN     Dừng bán (suất vẫn diễn)
+    DA_DIEN       Đã diễn xong
+    HUY           Huỷ suất
+
+TRẠNG THÁI BÁN CỦA GHẾ (seat.sale_state):
+    TRONG         Còn trống, chọn được
+    DANG_GIU      Người khác đang giữ
+    CUA_TOI       Chính phiên này đang giữ
+    DA_BAN        Đã bán
+    HONG          Ghế hỏng / ngưng dùng
+    LOI_DI        Ô lối đi, không phải ghế
+
+TRẠNG THÁI ĐƠN HÀNG ONLINE (online_order.status) — xem mục 4B:
+    CHO_THANH_TOAN   Đang chờ khách trả tiền ở VNPay
+    HOAN_TAT         Đã trả tiền và đã xuất vé
+    LOI_XUAT_VE      ĐÃ TRỪ TIỀN nhưng xuất vé hỏng — cần người xử lý
+    THAT_BAI         Khách huỷ hoặc ngân hàng từ chối, không trừ tiền
+    HET_HAN          Quá thời gian thanh toán, không trừ tiền
+
+TRẠNG THÁI VÉ (issued_ticket.status):
+    CON_HIEU_LUC     Vé còn dùng được
+    DA_SU_DUNG_HET   Đã vào cửa đủ số lượt
+    HET_HAN          Quá hạn sử dụng
+    DA_HOAN          Đã hoàn tiền
+    DA_DOI           Đã đổi sang vé khác
+
+LOẠI GHẾ (seat.seat_kind):
+    THUONG        Ghế đơn bình thường
+    DOI           Ghế đôi — bán theo cặp, xem pair_key ở mục 4.4
+    KHUYET_TAT    Chỗ dành cho xe lăn
+    LOI_DI        Ô trống / lối đi — không bán, chỉ để vẽ sơ đồ
+
+TÌNH TRẠNG GHẾ (seat.seat_state):
+    SU_DUNG | HONG | KHOA
+    (chỉ SU_DUNG mới bán được; hai giá trị kia hiện ra sale_state = "HONG")
+
+VỊ TRÍ SÂN KHẤU (auditorium.stage_position):
+    TRAI | PHAI | TREN | DUOI
+
+HÌNH THỨC VÉ (ticket_form):
+    QR_CODE | THE_TU
+
+CHẾ ĐỘ HÓA ĐƠN ĐIỆN TỬ (einvoice_mode):
+    KHONG_XUAT | XUAT_SAU | XUAT_TAI_THOI_DIEM_BAN
+
+
+================================================================================
+ 6. XỬ LÝ TRANH CHẤP GHẾ
+================================================================================
+
+Bán vé online có hai rủi ro thật, phải xử lý ngay từ đầu.
+
+
+RỦI RO 1 — HẾT 5 PHÚT GIỮ GHẾ TRONG LÚC KHÁCH ĐANG TRẢ TIỀN
+-----------------------------------------------------------
+Cổng thanh toán có thể mất hơn 5 phút (khách nhập OTP chậm, ngân hàng chậm).
+Khi đó lượt giữ ghế hết hạn, ghế bị người khác mua mất, mà tiền khách đã trừ.
+
+CÁCH XỬ LÝ:
+
+  a) Giữ ghế MUỘN NHẤT CÓ THỂ
+     Chỉ gọi hold ngay trước khi chuyển sang cổng thanh toán, không giữ từ lúc
+     khách mới rê chuột chọn ghế.
+
+  b) Hiện đồng hồ đếm ngược cho khách
+     Dựa vào expires_at. Còn dưới 60 giây thì cảnh báo rõ.
+
+  c) Gia hạn lượt giữ khi cần
+     Gọi lại POST /seating/seats/hold, truyền kèm hold_token CŨ và đúng danh sách
+     ghế đó. Nếu chưa ai lấy mất, hệ thống gia hạn thêm 5 phút.
+
+  d) BẮT BUỘC: có quy trình xử lý khi vé xuất thất bại sau khi đã thu tiền
+     Nếu POST /seats/issue trả 409 mà tiền đã trừ, website PHẢI:
+        - Ghi lại giao dịch vào một bảng "chờ xử lý" của website
+        - Thông báo cho khách và bộ phận chăm sóc khách hàng
+        - Hoàn tiền tự động, HOẶC để nhân viên nhà hát xử lý thủ công
+     TUYỆT ĐỐI không im lặng bỏ qua — đó là mất tiền của khách.
+
+
+RỦI RO 2 — CÙNG MỘT GHẾ BÁN CHO HAI NGƯỜI
+------------------------------------------
+Hệ thống đã có hai lớp chống trùng, website KHÔNG cần tự xử lý:
+
+  Lớp mềm:  giữ ghế 5 phút, có khoá đồng thời ở cơ sở dữ liệu
+  Lớp cứng: ràng buộc duy nhất trên bảng vé — dù có lỗi lập trình ở lớp trên
+            thì cơ sở dữ liệu vẫn từ chối vé thứ hai cho cùng một ghế
+
+Việc của website: bắt đúng lỗi HTTP 409 ở cả hai bước hold và issue, rồi tải lại
+sơ đồ ghế cho khách chọn lại.
+
+QUY TẮC VÀNG: KHÔNG BAO GIỜ tự suy đoán ghế còn trống dựa trên bộ nhớ đệm của
+website. Luôn tải lại sơ đồ từ máy chủ sau mỗi lần lỗi 409.
+
+
+================================================================================
+ 7. VIỆC PHẢI LÀM PHÍA HỆ THỐNG TRƯỚC KHI MỞ BÁN ONLINE
+================================================================================
+
+  [x] Tạo vai trò "Website bán vé online" với 5 quyền ở mục (0.2)   ĐÃ XONG
+  [x] Tạo tài khoản dịch vụ website_banve                           ĐÃ XONG
+  [ ] Khoá tài khoản theo IP máy chủ website khi đã biết IP:
+          node seed-website-account.js --remove
+          node seed-website-account.js --ip <IP máy chủ website>
+      Khi đó mật khẩu bị lộ cũng không đăng nhập được từ nơi khác.
+  [x] Khai báo hình thức thanh toán "VNPAY" và khoá tài khoản           ĐÃ XONG
+      website chỉ được thu qua hình thức này
+  [ ] Khai báo điểm bán (sales_point) riêng cho kênh online, nếu cần
+      tách báo cáo theo kênh
+  [ ] Nếu cần chặn "chưa tới giờ mở bán": website tự kiểm tra sale_open_at,
+      xem cảnh báo (0.5)
+  [x] Tích hợp cổng thanh toán VNPay (mục 4B)                          ĐÃ XONG
+  [ ] Điền VNPAY_TMN_CODE và VNPAY_HASH_SECRET thật vào backend/.env
+      (hiện đang là giá trị thử nghiệm)
+  [ ] Khai báo trong trang quản trị merchant VNPay:
+          Return URL : trang kết quả của website
+          IPN URL    : https://ticket-api-tamchuc.vercel.app/api/payments/vnpay/ipn
+      Hai địa chỉ phải TRÙNG KHỚP với backend/.env, lệch là VNPay từ chối.
+  [x] IPN URL đã công khai trên Internet, VNPay gọi vào được  ĐÃ XONG
+  [x] TRUST_PROXY=1 (Vercel là proxy đứng trước)                        ĐÃ XONG
+  [x] Đưa API lên Internet qua HTTPS                                    ĐÃ XONG
+      https://ticket-api-tamchuc.vercel.app  — xem docs/TRIEN-KHAI-VERCEL.txt
+  [ ] Đổi mật khẩu cơ sở dữ liệu, tạo lại service_role key của Supabase,
+      đổi mật khẩu tài khoản admin
+
+  KHÔNG ĐƯỢC LÀM:
+  [X] Không tắt RLS trên cơ sở dữ liệu
+  [X] Không đưa service_role key của Supabase cho website
+  [X] Không cho website kết nối thẳng vào cơ sở dữ liệu — phải đi qua API
+
+
+================================================================================
+ 8. PHỤ LỤC — VÍ DỤ MÃ NGUỒN
+================================================================================
+
+Ví dụ Node.js, chạy ở MÁY CHỦ website (không phải trong trình duyệt).
+
+------------------------------------------------------------------------
+const API = process.env.TICKET_API;  // https://ticket-api-tamchuc.vercel.app/api
+let token = null;
+
+async function login() {
+  const r = await fetch(API + '/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: process.env.TICKET_USER,
+      password: process.env.TICKET_PASS,
+    }),
+  });
+  const j = await r.json();
+  if (!j.success) throw new Error('Đăng nhập hệ thống vé thất bại');
+  token = j.data.token;
+}
+
+// Tự đăng nhập lại khi token hết hạn
+async function call(method, path, body) {
+  if (!token) await login();
+
+  const send = () => fetch(API + path, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token,
+    },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+  });
+
+  let res = await send();
+  if (res.status === 401) {       // token hết hạn -> lấy token mới, gọi lại
+    await login();
+    res = await send();
+  }
+
+  const json = await res.json();
+  if (!json.success) {
+    const err = new Error(json.message);
+    err.status = res.status;
+    err.details = json.details;   // details.blocked: ghế nào bị chặn
+    throw err;
+  }
+  return json.data;
+}
+
+// ---------- Luồng đặt vé ----------
+// XEM MỤC 4B.10. Đừng tự ghép giữ ghế + cổng thanh toán + xuất vé: cách đó tạo
+// lại đúng lỗ hổng "khách trả tiền mà không có vé". Website chỉ cần:
+//
+//     const don = await call('POST', '/payments/vnpay/orders', {...});
+//     res.redirect(don.pay_url);
+//
+// rồi ở trang kết quả gọi /payments/vnpay/orders/{code} để lấy trạng thái.
+------------------------------------------------------------------------
+
+
+================================================================================
+ HẾT
+--------------------------------------------------------------------------------
+ Máy chủ API:  https://ticket-api-tamchuc.vercel.app/api
+ Tổng số endpoint của hệ thống: 258 (tài liệu này mô tả các endpoint mà website
+ bán vé online cần dùng)
+================================================================================

@@ -1,0 +1,80 @@
+<%- include("partials/head", { extraCss: '/css/pages.css' }) %>
+<%- include("partials/nav") %>
+
+<main id="top" class="page-main">
+  <section class="page-hero">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/"><%= t('Trang chủ', 'Home') %></a><span>·</span>
+        <% if (activeCategory || activeTag) { %><a href="/tin-tuc"><%= t('Tin tức', 'News') %></a><span>·</span><% } %>
+        <span aria-current="page"><%= heading %></span>
+      </nav>
+      <div class="sec-head"><span class="num">—</span><span class="eyebrow"><%= t('Tin tức & Sự kiện', 'News & Events') %></span><span class="rule"></span></div>
+      <h1><%= heading %></h1>
+      <p class="lede"><%= lead %></p>
+      <form class="page-search" action="/tim-kiem" method="get" role="search">
+        <input type="search" name="q" placeholder="<%= t('Tìm bài viết…', 'Search articles…') %>" aria-label="<%= t('Tìm kiếm bài viết', 'Search articles') %>">
+        <button class="btn btn-ghost btn-sm" type="submit"><%= t('Tìm', 'Search') %></button>
+      </form>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap blog-layout">
+      <div>
+        <% if (!posts.length) { %>
+          <p class="hint"><%= t('Chưa có bài viết nào trong mục này.', 'No articles in this section yet.') %></p>
+        <% } %>
+        <div class="card-grid">
+          <% posts.forEach(function(p){ %>
+            <article class="card">
+              <a class="card-thumb" href="<%= p.url %>" aria-label="<%= p.title %>">
+                <img src="<%= p.cover_image || '/img/space-1.jpg' %>" alt="<%= p.cover_alt || p.title %>" loading="lazy" decoding="async">
+                <% if (p.featured) { %><span class="badge"><%= t('Nổi bật', 'Featured') %></span><% } %>
+              </a>
+              <div class="card-body">
+                <div class="card-meta">
+                  <% if (p.category_name) { %><a href="/chuyen-muc/<%= p.category_slug %>"><%= p.category_name %></a><span>·</span><% } %>
+                  <time datetime="<%= p.dateIso %>"><%= p.dateFull %></time>
+                  <span>·</span><span><%= p.reading_time %> <%= t('phút đọc', 'min read') %></span>
+                </div>
+                <h2><a href="<%= p.url %>"><%= p.title %></a></h2>
+                <p><%= p.excerpt %></p>
+                <a class="more" href="<%= p.url %>"><%= t('Đọc tiếp →', 'Read more →') %></a>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+
+        <%- include("partials/pagination", { pg: pg, baseUrl: baseUrl }) %>
+      </div>
+
+      <aside class="side">
+        <div class="side-box">
+          <h3><%= t('Chuyên mục', 'Categories') %></h3>
+          <ul class="side-list">
+            <% categories.forEach(function(c){ %>
+              <li><a href="/chuyen-muc/<%= c.slug %>" class="<%= activeCategory === c.slug ? 'on' : '' %>"><%= c.name %> <span><%= c.post_count %></span></a></li>
+            <% }) %>
+          </ul>
+        </div>
+        <div class="side-box">
+          <h3><%= t('Thẻ phổ biến', 'Popular tags') %></h3>
+          <div class="tag-cloud">
+            <% tags.forEach(function(tg){ %>
+              <a href="/tag/<%= tg.slug %>" class="<%= activeTag === tg.slug ? 'on' : '' %>">#<%= tg.name %></a>
+            <% }) %>
+          </div>
+        </div>
+        <div class="side-box side-cta">
+          <h3><%= t('Suất diễn sắp tới', 'Upcoming shows') %></h3>
+          <p><%= t('Đặt vé trực tuyến cho vở diễn THỨC tại Trung tâm Biểu diễn Alluvium.', 'Book online for THỨC at the Alluvium Performing Arts Center.') %></p>
+          <a class="btn btn-gold btn-sm" href="/#lich-dien"><%= t('Xem lịch diễn', 'View schedule') %></a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>
+<%- include("partials/end") %>

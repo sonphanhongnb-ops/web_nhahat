@@ -1,0 +1,130 @@
+<%- include("partials/header") %>
+
+<div class="grid g4 mb">
+  <div class="stat"><b><%= stats.published %></b><span>Bài đã xuất bản</span></div>
+  <div class="stat"><b><%= stats.draft + stats.review %></b><span>Nháp &amp; chờ duyệt</span><small><%= stats.review %> đang chờ duyệt</small></div>
+  <div class="stat"><b><%= stats.views.toLocaleString('vi-VN') %></b><span>Tổng lượt xem</span></div>
+  <div class="stat"><b><%= stats.avgSeo %><small style="display:inline;font-size:1rem;color:var(--muted)">/100</small></b><span>Điểm SEO trung bình</span></div>
+</div>
+
+<div class="grid g2">
+  <div class="card chart-wrap">
+    <h2>Lượt xem 14 ngày gần nhất</h2>
+    <div class="chart">
+      <% days.forEach(function(d){ %>
+        <div style="height:<%= Math.max(2, Math.round(d.n / maxView * 100)) %>%" title="<%= d.label %>: <%= d.n %> lượt"><span><%= d.label %></span></div>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Tình hình nhà hát</h2>
+    <div class="grid g3">
+      <div class="stat" style="border:none;padding:0"><b><%= stats.bookings %></b><span>Đơn đặt vé</span></div>
+      <div class="stat" style="border:none;padding:0"><b><%= U.vnd(stats.revenue) %></b><span>Doanh thu đã xác nhận</span></div>
+      <div class="stat" style="border:none;padding:0"><b><%= stats.subscribers %></b><span>Đăng ký bản tin</span></div>
+      <div class="stat" style="border:none;padding:0"><b><%= stats.contacts %></b><span>Liên hệ chưa xử lý</span></div>
+      <div class="stat" style="border:none;padding:0"><b><%= stats.pages %></b><span>Trang nội dung</span></div>
+      <div class="stat" style="border:none;padding:0"><b><%= stats.users %></b><span>Tài khoản</span></div>
+    </div>
+    <div class="row mt">
+      <a class="btn btn-gold btn-sm" href="/admin/posts/new">✎ Viết bài mới</a>
+      <% if (can('show.manage')) { %><a class="btn btn-sm" href="/admin/shows">Quản lý lịch diễn</a><% } %>
+      <% if (can('seo.manage')) { %><a class="btn btn-sm" href="/admin/seo">Trung tâm SEO</a><% } %>
+    </div>
+  </div>
+</div>
+
+<% if (needReview.length) { %>
+<div class="card mt">
+  <h2>Bài chờ duyệt</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tiêu đề</th><th>Tác giả</th><th>Cập nhật</th><th>SEO</th><th></th></tr></thead>
+      <tbody>
+        <% needReview.forEach(function(p){ %>
+          <tr>
+            <td><a class="t-title" href="/admin/posts/<%= p.id %>/edit"><%= p.title %></a></td>
+            <td class="muted small"><%= p.author_name || '—' %></td>
+            <td class="muted small"><%= U.formatDateTimeVN(p.updated_at) %></td>
+            <td><span class="pill <%= p.seo_score >= 70 ? 'ok' : (p.seo_score >= 50 ? 'warn' : 'bad') %>"><%= p.seo_score %></span></td>
+            <td class="actions">
+              <form method="post" action="/admin/posts/<%= p.id %>/status">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <input type="hidden" name="status" value="published">
+                <button class="btn btn-sm btn-gold" type="submit">Xuất bản</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<% } %>
+
+<div class="grid g2 mt">
+  <div class="card">
+    <h2>Bài viết gần đây</h2>
+    <% if (!recent.length) { %><p class="muted small">Chưa có bài viết nào. <a href="/admin/posts/new" style="color:var(--gold)">Viết bài đầu tiên →</a></p><% } %>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <% recent.forEach(function(p){ %>
+            <tr>
+              <td>
+                <a class="t-title" href="/admin/posts/<%= p.id %>/edit"><%= p.title %></a>
+                <div class="t-sub"><%= U.formatDateTimeVN(p.updated_at) %> · <%= p.views %> lượt xem</div>
+              </td>
+              <td class="right">
+                <span class="pill <%= p.status === 'published' ? 'ok' : (p.status === 'review' ? 'warn' : 'draft') %>">
+                  <%= p.status === 'published' ? 'Đã đăng' : (p.status === 'review' ? 'Chờ duyệt' : (p.status === 'draft' ? 'Nháp' : 'Lưu trữ')) %>
+                </span>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Cần cải thiện SEO</h2>
+    <% if (!lowSeo.length) { %><p class="muted small">Tất cả bài đã xuất bản đều đạt điểm SEO từ 70 trở lên. Rất tốt!</p><% } %>
+    <% lowSeo.forEach(function(p){ %>
+      <div style="margin-bottom:1rem">
+        <div class="spread">
+          <a class="t-title" href="/admin/posts/<%= p.id %>/edit"><%= p.title %></a>
+          <span class="small muted"><%= p.seo_score %>/100</span>
+        </div>
+        <div class="bar"><i style="width:<%= p.seo_score %>%;background:<%= p.seo_score >= 50 ? 'var(--gold)' : 'var(--rose)' %>"></i></div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<% if (latestBookings.length) { %>
+<div class="card mt">
+  <h2>Đơn đặt vé mới nhất</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mã</th><th>Đêm diễn</th><th>Khách</th><th>Ghế</th><th>Tổng</th><th>Trạng thái</th></tr></thead>
+      <tbody>
+        <% latestBookings.forEach(function(b){ %>
+          <tr>
+            <td><code class="k"><%= b.code %></code></td>
+            <td><%= b.show_title || '—' %></td>
+            <td><%= b.name %><div class="t-sub"><%= b.email %></div></td>
+            <td><%= b.seat_count %></td>
+            <td><%= U.vnd(b.total) %></td>
+            <td><span class="pill <%= b.status === 'confirmed' ? 'ok' : (b.status === 'cancelled' ? 'bad' : 'warn') %>"><%= b.status %></span></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="mt"><a class="btn btn-sm" href="/admin/bookings">Xem tất cả đơn →</a></div>
+</div>
+<% } %>
+
+<%- include("partials/footer") %>
