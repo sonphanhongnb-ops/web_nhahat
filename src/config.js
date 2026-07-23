@@ -41,8 +41,8 @@ const config = {
   uploadDir: process.env.UPLOAD_DIR || path.join(ROOT, 'public', 'uploads'),
   maxUploadMB: Number(process.env.MAX_UPLOAD_MB || 8),
   trustProxy: process.env.TRUST_PROXY === '1',
-  seedAdminEmail: process.env.SEED_ADMIN_EMAIL || 'admin@seaphony.vn',
-  seedAdminPassword: process.env.SEED_ADMIN_PASSWORD || 'Seaphony@2026',
+  seedAdminEmail: process.env.SEED_ADMIN_EMAIL || 'admin@seasound.com',
+  seedAdminPassword: process.env.SEED_ADMIN_PASSWORD || 'Seasound@2026',
 };
 
 fs.mkdirSync(path.dirname(config.dbFile), { recursive: true });

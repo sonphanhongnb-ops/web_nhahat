@@ -17,6 +17,7 @@ primary_region = "sin"           # Singapore — gần Việt Nam
   UPLOAD_DIR = "/data/uploads"   # ảnh upload nằm trên volume -> không mất
   MAX_UPLOAD_MB = "8"
   SITE_URL = "https://thuc-seasound.fly.dev"
+  SEED_ADMIN_EMAIL = "admin@seasound.com"
 
 # Ổ đĩa lưu trữ bền vững, gắn tại /data
 [[mounts]]
