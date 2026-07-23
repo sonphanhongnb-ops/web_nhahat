@@ -1,22 +1,26 @@
 # ==========================================================
-#  Render Blueprint — THỨC by SEASOUND
+#  Render Blueprint — THỨC by SEASOUND (BẢN MIỄN PHÍ)
 #  Render.com → New → Blueprint → chọn repo này.
-#  Cần gói Starter (có ổ đĩa lưu trữ); gói Free không hỗ trợ disk.
+#
+#  Gói Free: KHÔNG có ổ đĩa lưu trữ → dữ liệu người dùng nhập
+#  (đơn đặt vé, đăng ký, chỉnh sửa admin, ảnh upload) sẽ RESET
+#  mỗi khi service khởi động lại. Nhưng toàn bộ NỘI DUNG website
+#  (trang, bài viết, lịch diễn, giá vé) TỰ TẠO LẠI khi khởi động,
+#  nên trang công khai luôn đầy đủ.
+#
+#  Muốn giữ dữ liệu vĩnh viễn → nâng lên gói Starter và thêm khối
+#  "disk" (xem hướng dẫn ở cuối file).
 # ==========================================================
 services:
   - type: web
     name: thuc-seasound
     runtime: node
-    plan: starter                 # cần Starter trở lên để có "disk" (dữ liệu không mất)
+    plan: free
     region: singapore             # gần Việt Nam nhất
     buildCommand: npm install
-    startCommand: node server.js
+    startCommand: node --experimental-sqlite server.js
     healthCheckPath: /robots.txt
     autoDeploy: true
-    disk:
-      name: data
-      mountPath: /data            # ổ đĩa lưu trữ: CSDL + ảnh upload nằm ở đây
-      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
@@ -24,10 +28,6 @@ services:
         value: "1"
       - key: TRUST_PROXY
         value: "1"
-      - key: DB_FILE
-        value: /data/app.db
-      - key: UPLOAD_DIR
-        value: /data/uploads
       - key: MAX_UPLOAD_MB
         value: "8"
       - key: SESSION_SECRET
@@ -40,3 +40,19 @@ services:
         value: admin@seasound.com
       - key: SEED_ADMIN_PASSWORD
         sync: false               # tự nhập trong Dashboard, không lưu vào repo
+
+# ----------------------------------------------------------
+#  NÂNG CẤP GIỮ DỮ LIỆU VĨNH VIỄN (gói Starter ~$7/tháng):
+#  Đổi "plan: free" -> "plan: starter", rồi thêm vào service:
+#
+#    disk:
+#      name: data
+#      mountPath: /data
+#      sizeGB: 1
+#
+#  và thêm 2 biến:
+#    - key: DB_FILE
+#      value: /data/app.db
+#    - key: UPLOAD_DIR
+#      value: /data/uploads
+# ----------------------------------------------------------
