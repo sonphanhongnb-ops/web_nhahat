@@ -1,0 +1,42 @@
+# ==========================================================
+#  Fly.io — THỨC by SEASOUND
+#  Tên app phải DUY NHẤT trên fly.dev — đổi "thuc-seasound"
+#  nếu bị trùng (nhớ đổi cả SITE_URL bên dưới cho khớp).
+# ==========================================================
+app = "thuc-seasound"
+primary_region = "sin"           # Singapore — gần Việt Nam
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  NODE_NO_WARNINGS = "1"
+  TRUST_PROXY = "1"
+  PORT = "8080"
+  DB_FILE = "/data/app.db"       # CSDL nằm trên volume -> không mất
+  UPLOAD_DIR = "/data/uploads"   # ảnh upload nằm trên volume -> không mất
+  MAX_UPLOAD_MB = "8"
+  SITE_URL = "https://thuc-seasound.fly.dev"
+
+# Ổ đĩa lưu trữ bền vững, gắn tại /data
+[[mounts]]
+  source = "data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"    # ngủ khi rảnh -> tiết kiệm (gần như miễn phí)
+  auto_start_machines = true     # tự thức khi có truy cập
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+    method = "GET"
+    path = "/robots.txt"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"               # nhỏ nhất; nếu thiếu RAM đổi "512mb"
