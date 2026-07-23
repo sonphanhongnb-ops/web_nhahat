@@ -5,10 +5,10 @@
   "description": "Website Nhà hát Seaphony — frontend + backend + CMS quản trị chuẩn SEO",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "seed": "node src/seed.js",
-    "reset": "node src/seed.js --reset"
+    "start": "node --experimental-sqlite server.js",
+    "dev": "node --watch --experimental-sqlite server.js",
+    "seed": "node --experimental-sqlite src/seed.js",
+    "reset": "node --experimental-sqlite src/seed.js --reset"
   },
   "engines": {
     "node": ">=22.5.0"
