@@ -645,9 +645,8 @@ img,svg,video,iframe{max-width:100%}
 /* =========================================================
    SECTION 2 — Lịch diễn & Giá vé (thông tin cốt lõi sau Hero)
    ========================================================= */
-.ticketing .tk-lead{max-width:60ch;color:#b9ad93;font-size:clamp(.98rem,1.4vw,1.12rem);
-  margin:.2rem 0 clamp(2rem,4vw,3rem);line-height:1.7}
-.ticketing .tk-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(1.8rem,5vw,4rem);align-items:start}
+.ticketing .tk-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(1.8rem,5vw,4rem);
+  align-items:start;margin-top:.5rem}
 .tk-label{font-family:"Fraunces",Georgia,serif;font-weight:400;font-size:clamp(1.25rem,2.2vw,1.7rem);
   color:var(--cream);margin:0 0 1.1rem}
 .tk-sched{border-left:2px solid var(--gold);padding-left:clamp(1.1rem,2vw,1.6rem)}
