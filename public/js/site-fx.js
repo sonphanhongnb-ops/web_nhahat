@@ -31,10 +31,11 @@
     });
   }
 
-  /* ---- Hero faceted "cave vault" ---- */
+  /* ---- Hero faceted "cave vault" (chỉ chạy khi có #facets) ---- */
   var svg = document.getElementById('facets');
   var NS = 'http://www.w3.org/2000/svg';
   function facets(){
+    if(!svg) return;
     var w = window.innerWidth, h = window.innerHeight;
     svg.setAttribute('viewBox','0 0 '+w+' '+h);
     while(svg.firstChild) svg.removeChild(svg.firstChild);
@@ -131,4 +132,19 @@
       document.body.removeChild(t); done();
     }
   });
+})();
+
+/* =========== HERO SLIDESHOW (chế độ Slide) =========== */
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var box = document.querySelector('.hero-slides');
+  if (!box) return;
+  var slides = box.querySelectorAll('.hero-slide');
+  if (slides.length < 2 || reduce) return;
+  var i = 0, ms = Math.max(2, parseFloat(box.getAttribute('data-interval')) || 5) * 1000;
+  setInterval(function () {
+    slides[i].classList.remove('on');
+    i = (i + 1) % slides.length;
+    slides[i].classList.add('on');
+  }, ms);
 })();

@@ -261,3 +261,13 @@ details.rev{border:1px solid var(--line-soft);border-radius:3px;padding:.7rem .9
 details.rev summary{cursor:pointer;font-size:.84rem;color:var(--muted)}
 details.rev summary:hover{color:var(--gold)}
 code.k{background:var(--ink-3);padding:.1em .4em;border-radius:2px;font-size:.85em;color:var(--gold-hi)}
+
+/* ---------- Cấu hình Hero (chọn chế độ) ---------- */
+.hero-modes{display:flex;flex-wrap:wrap;gap:.7rem;margin:.3rem 0 .2rem}
+.hero-mode{display:flex;align-items:center;gap:.5rem;cursor:pointer;
+  border:1px solid var(--line-soft);border-radius:4px;padding:.7rem 1rem;transition:border-color .2s,background .2s;flex:1;min-width:160px}
+.hero-mode:hover{border-color:var(--line)}
+.hero-mode.on{border-color:var(--gold);background:rgba(201,163,92,.08)}
+.hero-mode input{width:auto;margin:0}
+.hero-mode span{font-size:.9rem;color:var(--cream)}
+.hero-fields{margin-top:.4rem}

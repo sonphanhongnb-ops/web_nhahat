@@ -3,6 +3,57 @@
 <form method="post" action="/admin/settings">
   <input type="hidden" name="_csrf" value="<%= csrf %>">
 
+  <!-- ============ HERO TRANG CHỦ ============ -->
+  <div class="card mb" id="hero-config">
+    <h2>Hero trang chủ (ảnh nền lớn đầu trang)</h2>
+    <div class="field">
+      <label>Chế độ hiển thị</label>
+      <div class="hero-modes">
+        <% ['image','slideshow','video'].forEach(function(m){
+             var lbl = m==='image' ? '🖼️ Ảnh tĩnh' : (m==='slideshow' ? '🎞️ Slide (nhiều ảnh)' : '🎬 Video (brand film)');
+        %>
+          <label class="hero-mode <%= values.hero_mode === m ? 'on' : '' %>">
+            <input type="radio" name="hero_mode" value="<%= m %>" <%= values.hero_mode === m ? 'checked' : '' %>>
+            <span><%= lbl %></span>
+          </label>
+        <% }) %>
+      </div>
+      <div class="help">Video sẽ tự phát, tắt tiếng, lặp. Slide tự chuyển ảnh. Tất cả đều toàn màn hình, chữ đè lên trên.</div>
+    </div>
+
+    <div class="hero-fields" data-mode="image">
+      <div class="field">
+        <label for="h-img">URL ảnh nền</label>
+        <input type="text" name="hero_image" id="h-img" value="<%= values.hero_image %>" placeholder="/img/hero.jpg hoặc /uploads/....jpg">
+      </div>
+    </div>
+
+    <div class="hero-fields" data-mode="slideshow">
+      <div class="field">
+        <label for="h-slides">Danh sách ảnh slide — mỗi URL một dòng</label>
+        <textarea name="hero_slides" id="h-slides" rows="4" placeholder="/img/hero.jpg&#10;/uploads/anh-2.jpg&#10;/uploads/anh-3.jpg"><%= values.hero_slides %></textarea>
+      </div>
+      <div class="field" style="max-width:220px">
+        <label for="h-int">Thời gian mỗi ảnh (giây)</label>
+        <input type="number" name="hero_slide_interval" id="h-int" value="<%= values.hero_slide_interval %>" min="2" max="20">
+      </div>
+    </div>
+
+    <div class="hero-fields" data-mode="video">
+      <div class="field">
+        <label for="h-vid">URL video (.mp4)</label>
+        <input type="text" name="hero_video_url" id="h-vid" value="<%= values.hero_video_url %>" placeholder="/uploads/brand-film.mp4 hoặc link .mp4">
+        <div class="help">Nên là file .mp4 nén nhẹ (≤ 10–15MB), quay ngang, không tiếng.</div>
+      </div>
+      <div class="field">
+        <label for="h-poster">Ảnh chờ (poster) khi video đang tải</label>
+        <input type="text" name="hero_video_poster" id="h-poster" value="<%= values.hero_video_poster %>" placeholder="/img/hero.jpg">
+      </div>
+    </div>
+
+    <p class="help">Lấy URL ảnh/video từ <a href="/admin/media" style="color:var(--gold)">Thư viện ảnh</a> (tải lên rồi bấm “Chép URL”).</p>
+  </div>
+
   <div class="grid g2">
     <div class="card">
       <h2>Thông tin website</h2>
@@ -75,5 +126,25 @@
     </div>
   </div>
 </form>
+
+<script>
+  (function () {
+    var wrap = document.getElementById('hero-config');
+    if (!wrap) return;
+    function sync() {
+      var mode = (wrap.querySelector('input[name="hero_mode"]:checked') || {}).value || 'image';
+      wrap.querySelectorAll('.hero-fields').forEach(function (f) {
+        f.style.display = f.getAttribute('data-mode') === mode ? '' : 'none';
+      });
+      wrap.querySelectorAll('.hero-mode').forEach(function (l) {
+        l.classList.toggle('on', l.querySelector('input').checked);
+      });
+    }
+    wrap.querySelectorAll('input[name="hero_mode"]').forEach(function (r) {
+      r.addEventListener('change', sync);
+    });
+    sync();
+  })();
+</script>
 
 <%- include("partials/footer") %>

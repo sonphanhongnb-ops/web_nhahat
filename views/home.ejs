@@ -1,35 +1,50 @@
 <%- include("partials/head") %>
 <%- include("partials/nav") %>
 
-<!-- HERO -->
+<!-- HERO — cấu hình 3 chế độ nền (Ảnh / Slide / Video) trong Quản trị -->
+<%
+  var heroMode = settings.hero_mode || 'image';
+  var heroSlides = String(settings.hero_slides || '').split(/\r?\n/).map(function(s){ return s.trim(); }).filter(Boolean);
+  if (!heroSlides.length) heroSlides = [settings.hero_image || '/img/hero.jpg'];
+  var heroInterval = Number(settings.hero_slide_interval || 5);
+%>
 <main id="top">
-<section class="hero">
-  <div class="hero-photo" aria-hidden="true" style="background-image:url('/img/hero.jpg')"></div>
-  <div class="hero-canvas" aria-hidden="true"><svg id="facets" preserveAspectRatio="none"></svg></div>
+<section class="hero hero-<%= heroMode %>">
+  <div class="hero-media" aria-hidden="true">
+    <% if (heroMode === 'video' && settings.hero_video_url) { %>
+      <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="<%= settings.hero_video_poster || settings.hero_image || '/img/hero.jpg' %>">
+        <source src="<%= settings.hero_video_url %>" type="video/mp4">
+      </video>
+    <% } else if (heroMode === 'slideshow') { %>
+      <div class="hero-slides" data-interval="<%= heroInterval %>">
+        <% heroSlides.forEach(function(src, i){ %>
+          <div class="hero-slide<%= i === 0 ? ' on' : '' %>" style="background-image:url('<%= src %>')"></div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="hero-photo" style="background-image:url('<%= settings.hero_image || '/img/hero.jpg' %>')"></div>
+    <% } %>
+  </div>
   <div class="hero-glow" aria-hidden="true"></div>
   <div class="hero-vignette" aria-hidden="true"></div>
-  <div class="wrap">
-    <div class="hero-eyebrow reveal">
-      <span class="rule"></span>
-      <span class="eyebrow">Alluvium · Hoa Lư · Ninh Bình</span>
-    </div>
-    <h1 class="reveal">THỨC<br><em><%= t('điều chưa bao giờ rời đi.', 'what was never truly gone.') %></em></h1>
-    <p class="lede reveal"><%= t(
-      'Vở diễn đầu tiên của SEASOUND — Dàn Khí Nhạc Bản Địa Đông Nam Á. Sáu mươi phút khí nhạc từ tre, nứa, đồng và da, tại Trung tâm Biểu diễn Alluvium.',
-      'The debut work of SEASOUND — the Southeast Asian Indigenous Music Ensemble. Sixty minutes of instrumental music from bamboo, reed, bronze and leather, at the Alluvium Performing Arts Center.') %></p>
-    <div class="hero-cta reveal">
-      <a class="btn btn-gold" href="#lich-dien"><%= t('Đặt vé', 'Reserve seats') %></a>
-      <a class="btn btn-ghost" href="#gioi-thieu"><%= t('Tìm hiểu thêm', 'Discover') %></a>
-    </div>
-    <div class="hero-stats reveal">
-      <div><b>60′</b><span><%= t('Phút, một mạch', 'Minutes, one breath') %></span></div>
-      <div><b>6–8</b><span><%= t('Tác phẩm khí nhạc', 'Instrumental works') %></span></div>
-      <div><b>4</b><span><%= t('Chất liệu bản địa', 'Indigenous materials') %></span></div>
-      <div><b>0</b><span><%= t('Lời hát', 'Sung words') %></span></div>
-    </div>
+
+  <div class="wrap hero-inner">
+    <span class="hero-kicker reveal"><%= t('MỘT TRẢI NGHIỆM VĂN HÓA ĐẶC SẮC', 'A CULTURAL SOUND EXPERIENCE') %></span>
+    <h1 class="hero-wordmark reveal">THỨC<span class="by">by SEASOUND</span></h1>
+    <p class="hero-motto reveal"><%= t('Lắng nghe. Nhận ra.', 'Listen. Realize.') %></p>
+    <span class="hero-line reveal" aria-hidden="true"></span>
+    <p class="hero-facts reveal">
+      <span><%= t('Thứ 4 đến Chủ nhật', 'Wednesday to Sunday') %> · 7:30 PM – 8:30 PM</span>
+      <span>Alluvium · Hoa Lư · Ninh Bình<%= lang === 'en' ? ', Vietnam' : '' %></span>
+    </p>
+    <a class="btn btn-gold hero-book reveal" href="#lich-dien"><%= t('Đặt vé ngay', 'Book your seats') %></a>
   </div>
-  <div class="scrollcue" aria-hidden="true"><span class="dot"></span><%= t('Cuộn xuống', 'Scroll') %></div>
+
+  <a class="scrollcue" href="#gioi-thieu" aria-label="<%= t('Cuộn xuống', 'Scroll') %>"><span class="dot"></span></a>
 </section>
+
+<!-- Nút đặt vé bám theo cuộn (mobile) -->
+<a class="sticky-book" href="#lich-dien"><%= t('Đặt vé ngay', 'Book your seats') %></a>
 
 <!-- VỀ THỨC — trình bày dạng thơ (nền tối, chữ sáng, sans-serif, ảnh Alluvium bên cạnh) -->
 <section class="band manifesto vethuc" id="gioi-thieu">

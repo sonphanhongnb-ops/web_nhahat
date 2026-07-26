@@ -262,6 +262,13 @@ const DEFAULT_SETTINGS = {
   robots_extra: '',
   posts_per_page: '9',
   seo_title_template: '%title% — %site%',
+  // ---------- Hero trang chủ (cấu hình 3 chế độ) ----------
+  hero_mode: 'image',                 // image | slideshow | video
+  hero_image: '/img/hero.jpg',        // chế độ Ảnh
+  hero_slides: '/img/hero.jpg\n/img/space-1.jpg\n/img/space-3.jpg', // chế độ Slide — mỗi URL một dòng
+  hero_slide_interval: '5',           // giây/ảnh cho slideshow
+  hero_video_url: '',                 // chế độ Video (.mp4) — brand film
+  hero_video_poster: '/img/hero.jpg', // ảnh chờ khi video đang tải
 };
 
 function getSetting(key, fallback = '') {
