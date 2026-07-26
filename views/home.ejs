@@ -352,27 +352,6 @@
   </div>
 </section>
 
-<!-- NEWS -->
-<section class="band news-sec" id="tin-tuc">
-  <div class="wrap">
-    <div class="sec-head reveal"><span class="eyebrow"><%= t('Tin tức & Sự kiện', 'News & Events') %></span><span class="rule"></span></div>
-    <div class="inst-head reveal"><h2><%= t('Chuyện mới từ THỨC.', 'Latest from THỨC.') %></h2></div>
-    <div class="news">
-<% posts.forEach(function(p){ %>
-      <article class="post reveal">
-        <div class="thumb"><a href="<%= p.url %>"><img src="<%= p.cover_image || '/img/space-1.jpg' %>" alt="<%= p.cover_alt || p.title %>" loading="lazy" onerror="this.closest('.thumb').classList.add('imgfail')"></a></div>
-        <div class="body"><div class="date"><%= p.dateLabel %></div>
-          <h3><a href="<%= p.url %>"><%= p.title %></a></h3>
-          <p><%= p.excerpt %></p>
-          <a class="more" href="<%= p.url %>"><%= t('Đọc tiếp →', 'Read more →') %></a></div>
-      </article>
-<% }) %>
-<% if(!posts.length){ %><p class="hint"><%= t('Chưa có bài viết nào được đăng.', 'No posts yet.') %></p><% } %>
-    </div>
-    <div class="reveal" style="margin-top:2rem"><a class="btn btn-ghost" href="/tin-tuc"><%= t('Xem tất cả tin tức', 'View all news') %></a></div>
-  </div>
-</section>
-
 <!-- FAQ -->
 <section class="band faq-sec" id="hoi-dap">
   <div class="wrap">
