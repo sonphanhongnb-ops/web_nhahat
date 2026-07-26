@@ -1,0 +1,77 @@
+<%- include("partials/head", { extraCss: '/css/pages.css' }) %>
+<%- include("partials/nav") %>
+
+<main id="top" class="page-main sea-page">
+
+  <!-- Tiêu đề -->
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow"><%= t('Dự án', 'The project') %></span>
+      <h1>SEASOUND</h1>
+      <p class="lede"><%= t('Dàn Khí Nhạc Bản Địa Đông Nam Á', 'Southeast Asian Indigenous Orchestra') %></p>
+    </div>
+  </section>
+
+  <!-- Giới thiệu dự án -->
+  <section class="band sea-intro">
+    <div class="wrap">
+      <div class="sea-copy">
+        <p><%= t(
+          'SEASOUND là dự án nghiên cứu và thực hành âm nhạc dài hạn nhằm xây dựng mô hình đại dàn nhạc đầu tiên lấy các nhạc khí bản địa Đông Nam Á làm trung tâm — không mô phỏng hình thức tổ chức dàn nhạc giao hưởng phương Tây, không phục dựng âm nhạc truyền thống theo kiểu bảo tàng hóa, mà xây dựng một ngôn ngữ khí nhạc mới xuất phát từ logic âm thanh đặc thù và tri thức nội tại của các nhạc khí bản địa khu vực.',
+          'SEASOUND is a long-term research and practice project — building the first orchestral model centered on the indigenous instruments of Southeast Asia. Not modeled on the Western symphony orchestra. Not a museum reconstruction of traditional music. But the development of a new instrumental language, one that emerges from the distinctive sonic logic and internal knowledge of the region’s indigenous instruments.') %></p>
+        <p><%= t(
+          'Được khởi xướng bởi nhạc sĩ Nguyễn Nhất Lý từ năm 2006, được định hình thành dự án vào năm 2016, thử nghiệm lần đầu tại Hà Nội năm 2017 dưới tên Seaphony, và được tái khởi động với đầu tư chính thức từ tháng 9/2025 tại Ninh Bình bởi Alluvium Production dưới tên SEASOUND — dự án hiện đang trong năm thứ nhất của lộ trình thực hiện 5 năm.',
+          'Initiated by composer Nguyễn Nhất Lý in 2006, formalized as a project in 2016, and first performed in Hanoi in 2017 under the name Seaphony. SEASOUND was relaunched with formal investment in September 2025 in Ninh Bình by Alluvium Production. The project is currently in its first year of a five-year roadmap.') %></p>
+      </div>
+
+      <!-- Dòng thời gian -->
+      <ol class="sea-timeline">
+        <li><span class="yr">2006</span><span class="ev"><%= t('Nhạc sĩ Nguyễn Nhất Lý khởi xướng', 'Initiated by composer Nguyễn Nhất Lý') %></span></li>
+        <li><span class="yr">2016</span><span class="ev"><%= t('Định hình thành dự án', 'Formalized as a project') %></span></li>
+        <li><span class="yr">2017</span><span class="ev"><%= t('Thử nghiệm đầu tiên tại Hà Nội — Seaphony', 'First performed in Hanoi — Seaphony') %></span></li>
+        <li><span class="yr">9 / 2025</span><span class="ev"><%= t('Tái khởi động tại Ninh Bình — SEASOUND (Alluvium Production)', 'Relaunched in Ninh Bình — SEASOUND (Alluvium Production)') %></span></li>
+        <li class="on"><span class="yr"><%= t('Nay', 'Now') %></span><span class="ev"><%= t('Năm thứ nhất của lộ trình 5 năm', 'Year one of a five-year roadmap') %></span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Nghệ sĩ -->
+  <section class="band sea-block">
+    <div class="wrap">
+      <div class="sea-head"><span class="eyebrow"><%= t('Nghệ sĩ', 'The artists') %></span><span class="rule"></span></div>
+      <p class="sea-lead"><%= t(
+        'Dưới sự dẫn dắt của nhạc sĩ — giám đốc nghệ thuật Nguyễn Nhất Lý, dàn nhạc quy tụ 13 nhạc công chơi trực tiếp các nhạc khí bản địa.',
+        'Led by composer and artistic director Nguyễn Nhất Lý, the ensemble brings together 13 musicians performing the indigenous instruments live.') %></p>
+      <p class="sea-note"><%= t('Hồ sơ từng nghệ sĩ (tên · vai trò · nhạc cụ) đang được cập nhật.', 'Individual profiles (name · role · instrument) are being updated.') %></p>
+    </div>
+  </section>
+
+  <!-- Nhạc cụ -->
+  <section class="band sea-block">
+    <div class="wrap">
+      <div class="sea-head"><span class="eyebrow"><%= t('Nhạc cụ', 'The instruments') %></span><span class="rule"></span></div>
+      <p class="sea-lead"><%= t(
+        'Tre, nứa, đồng thau, da — những chất liệu bản địa được chế tác thủ công, mỗi cây một tiếng nói riêng.',
+        'Bamboo, reed, bronze, leather — indigenous materials, handcrafted, each with a voice of its own.') %></p>
+      <div class="sea-materials">
+        <span><%= t('Tre', 'Bamboo') %></span><span><%= t('Nứa', 'Reed') %></span><span><%= t('Đồng thau', 'Bronze') %></span><span><%= t('Da', 'Leather') %></span>
+      </div>
+      <p class="sea-note"><%= t('Bộ ảnh chất liệu (cận cảnh) đang được cập nhật.', 'Close-up material photography is being updated.') %></p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="band sea-cta">
+    <div class="wrap">
+      <p class="sea-cta-line"><%= t('THỨC là vở diễn đầu tiên bước ra từ dự án SEASOUND.', 'THỨC is the first performance to emerge from the SEASOUND project.') %></p>
+      <div class="sea-cta-btns">
+        <a class="btn btn-gold" href="<%= (typeof isHome !== 'undefined' && isHome) ? '' : '/' %>#lich-dien"><%= t('Đặt vé xem THỨC', 'Book THỨC') %></a>
+        <a class="btn btn-ghost" href="/"><%= t('← Về trang chủ', '← Back home') %></a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<%- include("partials/footer") %>
+<%- include("partials/end") %>

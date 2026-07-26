@@ -69,6 +69,28 @@ router.get('/', (req, res) => {
 });
 
 // ============================================================
+//  TRANG DỰ ÁN SEASOUND
+// ============================================================
+router.get('/seasound', (req, res) => {
+  const s = allSettings();
+  const en = req.lang === 'en';
+  res.render('seasound', {
+    seo: SEO.buildMeta({
+      title: en ? 'SEASOUND — Southeast Asian Indigenous Orchestra' : 'SEASOUND — Dàn Khí Nhạc Bản Địa Đông Nam Á',
+      description: en
+        ? 'A long-term research and practice project building the first orchestral model centered on the indigenous instruments of Southeast Asia.'
+        : 'Dự án nghiên cứu và thực hành âm nhạc dài hạn, xây dựng đại dàn nhạc đầu tiên lấy nhạc khí bản địa Đông Nam Á làm trung tâm.',
+      path: '/seasound',
+      image: s.default_og_image,
+      type: 'website',
+    }),
+    jsonLd: [
+      SEO.breadcrumbLd([{ name: 'Trang chủ', url: '/' }, { name: 'SEASOUND', url: '/seasound' }]),
+    ],
+  });
+});
+
+// ============================================================
 //  TIN TỨC — DANH SÁCH
 // ============================================================
 router.get('/tin-tuc', (req, res) => {
