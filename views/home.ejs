@@ -43,6 +43,43 @@
   <a class="scrollcue" href="#gioi-thieu" aria-label="<%= t('Cuộn xuống', 'Scroll') %>"><span class="dot"></span></a>
 </section>
 
+<!-- SECTION 2 — LỊCH DIỄN & GIÁ VÉ (thông tin cốt lõi, ngay sau Hero) -->
+<section class="band ticketing" id="lich-gia">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Lịch diễn & Giá vé', 'Schedule & Tickets') %></span><span class="rule"></span></div>
+    <p class="tk-lead reveal"><%= t('Khách cần biết ngay: diễn khi nào, còn chỗ không, bao nhiêu tiền.', 'What you need to know: when it plays, seat availability, and the price.') %></p>
+    <div class="tk-grid">
+      <div class="tk-sched reveal">
+        <h3 class="tk-label"><%= t('Lịch biểu diễn', 'Performance schedule') %></h3>
+        <p class="tk-days"><%= t('Từ Thứ 4 đến Chủ nhật', 'Wednesday to Sunday') %></p>
+        <p class="tk-time">7:30 PM – 8:30 PM</p>
+        <p class="tk-sub"><%= t('60 phút · không giải lao', '60 minutes · no intermission') %></p>
+      </div>
+      <div class="tk-price reveal">
+        <h3 class="tk-label"><%= t('Bảng giá', 'Ticket prices') %></h3>
+        <div class="price-wrap">
+          <table class="price-table">
+            <thead><tr>
+              <th><%= t('Hạng vé', 'Tier') %></th>
+              <th><%= t('Giá (VNĐ)', 'Price (VND)') %></th>
+              <th><%= t('USD (tham khảo)', 'USD (approx.)') %></th>
+            </tr></thead>
+            <tbody>
+              <tr><td>ECO</td><td>450.000&nbsp;đ</td><td>~18 USD</td></tr>
+              <tr><td>VIP</td><td>600.000&nbsp;đ</td><td>~24 USD</td></tr>
+              <tr><td>VVIP</td><td>750.000&nbsp;đ</td><td>~30 USD</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <p class="tk-note reveal"><%= t('Vé bao gồm toàn bộ buổi diễn 60 phút. Vui lòng đến trước 15 phút.', 'Ticket includes the full 60-minute performance. Please arrive 15 minutes early.') %></p>
+    <div class="tk-cta reveal">
+      <a class="btn btn-gold" href="#lich-dien"><%= t('Chọn ngày & đặt vé', 'Select date & book') %></a>
+    </div>
+  </div>
+</section>
+
 <!-- VỀ THỨC — trình bày dạng thơ (nền tối, chữ sáng, sans-serif, ảnh Alluvium bên cạnh) -->
 <section class="band manifesto vethuc" id="gioi-thieu">
   <div class="wrap">
@@ -253,7 +290,7 @@
 <!-- PROGRAM -->
 <section class="band program" id="lich-dien">
   <div class="wrap">
-    <div class="sec-head reveal"><span class="eyebrow"><%= t('Lịch diễn & Giá vé', 'Schedule & Prices') %></span><span class="rule"></span></div>
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Đặt vé', 'Booking') %></span><span class="rule"></span></div>
     <h2 class="reveal"><%= t('Suất diễn sắp tới', 'Upcoming performances') %></h2>
     <div class="shows">
 <% shows.forEach(function(s){ %>
