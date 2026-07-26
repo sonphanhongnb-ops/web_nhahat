@@ -160,66 +160,58 @@
     if (k === 'note')  return '<path d="M9 18V6l10-2v10"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>';
     return '<path d="M12 2c.6 5 3.4 7.8 8.4 8.4-5 .6-7.8 3.4-8.4 8.4-.6-5-3.4-7.8-8.4-8.4C8.6 9.8 11.4 7 12 2z"/>';
   }
+  var poemBody = poem.slice(0, poem.length - 1);
+  var poemEnd  = poem[poem.length - 1];   // câu kết
 %>
-<section class="band vethuc" id="gioi-thieu">
-  <div class="wrap">
-    <div class="sec-head reveal"><span class="eyebrow"><%= t('Về THỨC', 'About THỨC') %></span><span class="rule"></span></div>
+<section class="vethuc-x" id="gioi-thieu">
 
-    <div class="vethuc-slider reveal" data-vethuc>
-      <button class="vt-arrow vt-prev" type="button" aria-label="<%= t('Trang trước', 'Previous') %>">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
-      </button>
+  <!-- 1 · KHÚC MỞ — ảnh nền chuyển động nhẹ + tuyên ngôn -->
+  <div class="vx-overture">
+    <div class="vx-bg" aria-hidden="true"><img src="/img/space-2.jpg" alt="" loading="lazy"></div>
+    <div class="vx-veil" aria-hidden="true"></div>
+    <div class="wrap vx-overture-in">
+      <span class="eyebrow reveal"><%= t('Về THỨC', 'About THỨC') %></span>
+      <p class="vx-lead reveal"><%= vtIntro.lead %></p>
+      <p class="vx-sub reveal"><%= vtIntro.body %></p>
+      <div class="vx-tenets reveal">
+        <div class="vx-tenet"><b>60</b><span><%= t('phút', 'minutes') %></span></div>
+        <div class="vx-tenet"><b>6</b><span><%= t('tác phẩm nguyên bản', 'original works') %></span></div>
+        <div class="vx-tenet"><b>0</b><span><%= t('lời', 'words') %></span></div>
+      </div>
+      <p class="vx-neg reveal"><%= t('Không hòa tấu dân ca. Không hòa âm phối khí.', 'No folk arrangements. No Western orchestration.') %></p>
+    </div>
+    <a class="vx-cue" href="#vx-river" aria-label="<%= t('Đọc tiếp', 'Read on') %>"><span></span></a>
+  </div>
 
-      <div class="vt-viewport">
-        <div class="vt-track">
-          <!-- Trang 1 — ảnh trái, chữ phải -->
-          <article class="vt-page">
-            <figure class="vt-media">
-              <img src="/img/space-2.jpg" alt="<%= t('Nghệ sĩ THỨC biểu diễn nhạc cụ bản địa', 'A THỨC musician performing on indigenous instruments') %>" loading="lazy">
-            </figure>
-            <div class="vt-text">
-              <span class="vt-pageno"><%= t('Trang 1 · Giới thiệu', 'Page 1 · Introduction') %></span>
-              <p class="vt-lead"><%= vtIntro.lead %></p>
-              <p class="vt-body"><%= vtIntro.body %></p>
-              <p class="vt-strong"><% vtIntro.strong.forEach(function(l, i){ %><%= l %><% if (i < vtIntro.strong.length - 1) { %><br><% } %><% }) %></p>
-            </div>
-          </article>
-          <!-- Trang 2 — chữ trái, ảnh phải -->
-          <article class="vt-page vt-page--rev">
-            <div class="vt-text">
-              <span class="vt-pageno"><%= t('Trang 2 · Cảm thức', 'Page 2 · The current') %></span>
-              <div class="poem">
-                <% poem.forEach(function(stanza){ %>
-                  <p class="stanza"><% stanza.forEach(function(line, i){ %><%= line %><% if (i < stanza.length - 1) { %><br><% } %><% }) %></p>
-                <% }) %>
-              </div>
-            </div>
-            <figure class="vt-media">
-              <img src="/img/space-1.jpg" alt="<%= t('Không gian biểu diễn Alluvium — ánh sáng thấp', 'The Alluvium performance space — low light') %>" loading="lazy">
-            </figure>
-          </article>
+  <!-- 2 · DÒNG CHẢY — bài thơ chảy dọc theo đường vàng, tự đầy khi cuộn -->
+  <div class="vx-river-wrap" id="vx-river">
+    <div class="vx-glow" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="vx-poem" data-current>
+        <div class="vx-line" aria-hidden="true"><span class="vx-fill"></span></div>
+        <div class="vx-stanzas">
+          <% poemBody.forEach(function(stanza, si){ %>
+            <p class="vx-stanza reveal<%= si === 0 ? ' vx-first' : '' %>"><% stanza.forEach(function(line, i){ %><%= line %><% if (i < stanza.length - 1) { %><br><% } %><% }) %></p>
+          <% }) %>
         </div>
       </div>
-
-      <button class="vt-arrow vt-next" type="button" aria-label="<%= t('Trang sau', 'Next') %>">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
-      </button>
-
-      <div class="vt-dots" role="tablist">
-        <button type="button" class="on" data-i="0" aria-label="<%= t('Trang 1', 'Page 1') %>"></button>
-        <button type="button" data-i="1" aria-label="<%= t('Trang 2', 'Page 2') %>"></button>
-      </div>
+      <blockquote class="vx-close reveal"><% poemEnd.forEach(function(line, i){ %><%= line %><% if (i < poemEnd.length - 1) { %><br><% } %><% }) %></blockquote>
     </div>
+  </div>
 
-    <div class="vt-highlights">
-      <% vtHi.forEach(function(h){ %>
-        <div class="vt-hl reveal">
+  <!-- 3 · ĐIỂM NHẤN — vì sao nên đến -->
+  <div class="wrap">
+    <div class="vx-highlights">
+      <% vtHi.forEach(function(h, i){ %>
+        <div class="vx-hl reveal">
+          <span class="vx-hl-no"><%= '0' + (i + 1) %></span>
           <span class="vt-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><%- vtIcon(h[0]) %></svg></span>
           <p><%= h[1] %></p>
         </div>
       <% }) %>
     </div>
   </div>
+
 </section>
 
 <!-- MOVEMENTS -->
