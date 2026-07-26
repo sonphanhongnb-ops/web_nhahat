@@ -101,7 +101,19 @@
           <p><%= t('Trống da tạo nên nhịp đập — nhịp trống trong một buổi lễ đã lâu, trở về trong THỨC.', 'Leather drums form the heartbeat — the drum of a long-past ceremony, returning in THỨC.') %></p>
         </div>
       </div>
-      <p class="sea-note"><%= t('Bộ ảnh chất liệu (cận cảnh) đang được cập nhật.', 'Close-up material photography is being updated.') %></p>
+      <% var _iAlt = t('Nhạc khí bản địa của SEASOUND', 'A SEASOUND indigenous instrument');
+         var instShots = ['01','02','04','05','07','08','12','15','16','18','20','24','27','28','30']; %>
+      <div class="inst-collection">
+        <h3 class="inst-coll-title"><%= t('Bộ sưu tập nhạc khí', 'The instrument collection') %></h3>
+        <div class="gallery inst-gallery reveal">
+          <% instShots.forEach(function(n){ %>
+            <figure data-full="/img/instruments/inst-<%= n %>.jpg">
+              <img src="/img/instruments/inst-<%= n %>.jpg" alt="<%= _iAlt %>" loading="lazy">
+            </figure>
+          <% }) %>
+        </div>
+        <p class="sea-note"><%= t('Bấm vào ảnh để xem lớn. Ảnh: SEASOUND.', 'Tap an image to enlarge. Photos: SEASOUND.') %></p>
+      </div>
     </div>
   </section>
 
@@ -117,6 +129,12 @@
   </section>
 
 </main>
+
+<!-- Lightbox cho thư viện nhạc cụ -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lbx" aria-label="<%= t('Đóng', 'Close') %>"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <img alt="" referrerpolicy="no-referrer">
+</div>
 
 <%- include("partials/footer") %>
 <%- include("partials/end") %>
