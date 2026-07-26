@@ -826,3 +826,47 @@ img,svg,video,iframe{max-width:100%}
 .inst-collection .sea-note{margin-top:1.2rem}
 @media(max-width:520px){ .inst-gallery{grid-template-columns:repeat(2,1fr)} }
 @media(max-width:600px){ .sea-timeline li{grid-template-columns:1fr;gap:.2rem} }
+
+/* =========================================================
+   NÚT LIÊN HỆ NỔI (cố định, xổ ra Điện thoại · Zalo · Facebook · Instagram)
+   ========================================================= */
+.cfab{position:fixed;right:20px;bottom:20px;z-index:95;display:flex;flex-direction:column-reverse;align-items:center;gap:12px}
+.cfab-toggle{position:relative;width:58px;height:58px;border-radius:50%;border:0;cursor:pointer;
+  background:var(--gold);color:var(--ink);display:grid;place-items:center;
+  box-shadow:0 10px 26px rgba(0,0,0,.4);transition:transform .3s var(--ease),background .3s var(--ease);
+  animation:cfabPulse 2.4s infinite}
+.cfab-toggle:hover{background:var(--gold-hi);transform:scale(1.06)}
+.cfab-toggle svg{width:27px;height:27px}
+.cfab-toggle .ic-close{display:none}
+.cfab.open .cfab-toggle{animation:none;background:var(--ink-2);color:var(--gold-hi);border:1px solid var(--line)}
+.cfab.open .cfab-toggle .ic-phone{display:none}
+.cfab.open .cfab-toggle .ic-close{display:block}
+@keyframes cfabPulse{
+  0%{box-shadow:0 10px 26px rgba(0,0,0,.4),0 0 0 0 rgba(201,163,92,.55)}
+  70%{box-shadow:0 10px 26px rgba(0,0,0,.4),0 0 0 15px rgba(201,163,92,0)}
+  100%{box-shadow:0 10px 26px rgba(0,0,0,.4),0 0 0 0 rgba(201,163,92,0)}}
+/* nhãn "Liên hệ" hiện khi rê chuột */
+.cfab-toggle::after{content:attr(data-tip);position:absolute;right:70px;top:50%;transform:translateY(-50%) translateX(6px);
+  background:var(--ink-2);color:var(--cream);border:1px solid var(--line);border-radius:4px;
+  padding:.4rem .7rem;font-size:.78rem;white-space:nowrap;opacity:0;pointer-events:none;transition:.25s var(--ease)}
+.cfab-toggle:hover::after{opacity:1;transform:translateY(-50%)}
+.cfab.open .cfab-toggle::after{display:none}
+
+.cfab-items{display:flex;flex-direction:column;gap:12px;align-items:center}
+.cfab-item{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;color:#fff;text-decoration:none;
+  box-shadow:0 6px 18px rgba(0,0,0,.32);
+  opacity:0;transform:translateY(14px) scale(.5);pointer-events:none;
+  transition:opacity .3s var(--ease),transform .3s var(--ease),filter .25s}
+.cfab-item svg{width:25px;height:25px}
+.cfab.open .cfab-item{opacity:1;transform:none;pointer-events:auto}
+.cfab.open .cfab-item:nth-child(1){transition-delay:.18s}
+.cfab.open .cfab-item:nth-child(2){transition-delay:.13s}
+.cfab.open .cfab-item:nth-child(3){transition-delay:.08s}
+.cfab.open .cfab-item:nth-child(4){transition-delay:.04s}
+.cfab.open .cfab-item:hover{transform:scale(1.12)}
+.cfab-phone{background:#22a35a}
+.cfab-fb{background:#1877f2}
+.cfab-zalo{background:#0068ff;font-weight:700;font-size:.74rem;letter-spacing:.01em}
+.cfab-ig{background:linear-gradient(45deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888)}
+@media(max-width:600px){ .cfab{right:14px;bottom:14px;gap:11px} .cfab-toggle{width:54px;height:54px} .cfab-item{width:47px;height:47px} }
+@media(prefers-reduced-motion:reduce){ .cfab-toggle{animation:none} }

@@ -134,6 +134,25 @@
   });
 })();
 
+/* =========== NÚT LIÊN HỆ NỔI (xổ ra danh sách kênh) =========== */
+(function () {
+  var fab = document.getElementById('cfab');
+  if (!fab) return;
+  var toggle = document.getElementById('cfab-toggle');
+  function setOpen(open) {
+    fab.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  toggle.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setOpen(!fab.classList.contains('open'));
+  });
+  document.addEventListener('click', function (e) {
+    if (fab.classList.contains('open') && !fab.contains(e.target)) setOpen(false);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+})();
+
 /* =========== VỀ THỨC — đường "dòng chảy" tự đầy theo tiến độ cuộn =========== */
 (function () {
   var poem = document.querySelector('.vx-poem[data-current]');
