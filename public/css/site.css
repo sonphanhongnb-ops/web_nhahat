@@ -635,14 +635,6 @@ img,svg,video,iframe{max-width:100%}
   text-transform:uppercase;font-weight:600;border-radius:2px;box-shadow:0 12px 40px rgba(201,163,92,.28)}
 .hero .hero-book:hover{transform:translateY(-2px)}
 
-/* Nút "Đặt vé ngay" bám theo cuộn (mobile) */
-.sticky-book{position:fixed;left:0;right:0;bottom:0;z-index:80;display:none;
-  background:var(--gold);color:var(--ink);text-align:center;padding:1.05rem;
-  font-size:.84rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;
-  box-shadow:0 -8px 24px rgba(0,0,0,.3)}
-.sticky-book:hover{background:var(--gold-hi)}
 @media(max-width:820px){
-  .sticky-book{display:block}
-  body{padding-bottom:54px}
   .hero .hero-wordmark{font-size:clamp(3.4rem,17vw,6rem)}
 }
