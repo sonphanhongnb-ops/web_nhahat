@@ -9,7 +9,6 @@
         <% if (activeCategory || activeTag) { %><a href="/tin-tuc"><%= t('Tin tức', 'News') %></a><span>·</span><% } %>
         <span aria-current="page"><%= heading %></span>
       </nav>
-      <div class="sec-head"><span class="num">—</span><span class="eyebrow"><%= t('Tin tức & Sự kiện', 'News & Events') %></span><span class="rule"></span></div>
       <h1><%= heading %></h1>
       <p class="lede"><%= lead %></p>
       <form class="page-search" action="/tim-kiem" method="get" role="search">
