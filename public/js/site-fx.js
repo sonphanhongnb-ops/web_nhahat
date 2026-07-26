@@ -139,9 +139,11 @@
   var fab = document.getElementById('cfab');
   if (!fab) return;
   var toggle = document.getElementById('cfab-toggle');
+  var dv = document.querySelector('.dvfab');
   function setOpen(open) {
     fab.classList.toggle('open', open);
     toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (dv) dv.classList.toggle('cfab-hidden', open);
   }
   toggle.addEventListener('click', function (e) {
     e.stopPropagation();
