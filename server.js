@@ -1,5 +1,7 @@
 'use strict';
 const path = require('node:path');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
 const express = require('express');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
@@ -11,6 +13,20 @@ const U = require('./src/utils');
 const SEO = require('./src/seo');
 
 const app = express();
+
+// ---------- Cache-busting cho CSS/JS (băm nội dung asset khi khởi động) ----------
+// Mỗi lần deploy đổi file -> hash đổi -> ?v=... đổi -> trình duyệt tải bản mới ngay,
+// không phải xoá cache thủ công (dù static vẫn cache 30 ngày).
+app.locals.assetVer = (() => {
+  try {
+    const files = ['css/site.css', 'css/admin.css', 'js/site-fx.js', 'js/booking.js', 'js/lightbox.js', 'js/admin.js'];
+    const h = crypto.createHash('sha1');
+    for (const f of files) {
+      try { h.update(fs.readFileSync(path.join(config.ROOT, 'public', f))); } catch (_e) { /* bỏ qua file thiếu */ }
+    }
+    return h.digest('hex').slice(0, 8);
+  } catch (_e) { return '1'; }
+})();
 
 // ---------- Hạ tầng ----------
 if (config.trustProxy) app.set('trust proxy', 1);
