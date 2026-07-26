@@ -79,44 +79,135 @@
   </div>
 </section>
 
-<!-- VỀ THỨC — trình bày dạng thơ (nền tối, chữ sáng, sans-serif, ảnh Alluvium bên cạnh) -->
-<section class="band manifesto vethuc" id="gioi-thieu">
+<!-- VỀ THỨC — slider 2 trang (giới thiệu / bài thơ) + 3 điểm nhấn -->
+<%
+  // Trang 1 — giới thiệu
+  var vtIntro = lang === 'en' ? {
+    lead: 'THỨC is the debut performance of the Southeast Asian Indigenous Orchestra — SEASOUND.',
+    body: 'Rooted in the indigenous music of Southeast Asia, THỨC offers a singular contemporary music experience — a language and aesthetic entirely its own.',
+    strong: ['Sixty minutes. Six original compositions.', 'No folk arrangements. No Western orchestration. No words.']
+  } : {
+    lead: 'THỨC là vở diễn đầu tiên của Dàn Khí Nhạc Bản Địa Đông Nam Á — SEASOUND.',
+    body: 'Được xây dựng trên nền tảng âm nhạc bản địa Đông Nam Á, THỨC hứa hẹn mang đến trải nghiệm âm nhạc đương đại độc đáo với ngôn ngữ và phong cách hoàn toàn mới.',
+    strong: ['Sáu mươi phút. Sáu tác phẩm sáng tác riêng.', 'Không hòa tấu dân ca. Không hòa âm phối khí. Không lời!']
+  };
+  // Trang 2 — bài thơ
+  var poem = lang === 'en' ? [
+    ['Within each of us runs a quiet current —',
+     'a place where cultural memory is held:',
+     'the lullabies of early childhood,',
+     'the folk melodies passed down through generations,',
+     'the living sounds of nature,',
+     'of everyday life,',
+     'of festivals and celebrations…'],
+    ['A deep sense of origin. Of belonging.'],
+    ['But as life grows more modern,',
+     'as cultures blend and accelerate,',
+     'that current grows faint.',
+     'We grow accustomed to technology,',
+     'to standardised emotions and standardised rhythms.',
+     'What was once close',
+     'becomes distant. Broken.'],
+    ['THỨC was created to stir that current again —',
+     'the melodies that had fallen silent,',
+     'the memories once familiar,',
+     'the honest vibrations.'],
+    ['Through the pure, unadorned sound —',
+     'at times strange, at times startling —',
+     'of instruments handcrafted from bamboo, rattan, bronze…',
+     'the listener is drawn into a place of quiet depth.',
+     'Into resonance with the past, with nature,',
+     'with other people, with community,',
+     'with a way of life that is unhurried and humane.'],
+    ['To listen —', 'and recognise oneself.']
+  ] : [
+    ['Trong mỗi người luôn tồn tại một dòng chảy âm thầm,',
+     'nơi lưu giữ những lớp ký ức văn hóa —',
+     'từ những lời mẹ ru êm khi thơ bé,',
+     'những làn điệu dân ca,',
+     'hay những âm thanh sống động',
+     'trong tự nhiên, trong đời sống thường ngày, trong các lễ hội…',
+     'Đó là lớp cảm thức sâu xa về nguồn gốc và bản sắc.'],
+    ['Nhưng theo thời gian, khi cuộc sống ngày càng hiện đại,',
+     'sự giao thoa giữa nhiều nền văn hóa khiến dòng chảy ấy dần mờ nhạt.',
+     'Ta quen với công nghệ,',
+     'quen tiêu chuẩn hóa cảm xúc và nhịp sống.',
+     'Những gì từng rất gần gũi',
+     'trở nên xa lạ, đứt đoạn.'],
+    ['THỨC được tạo ra để khơi lại dòng chảy ấy —',
+     'những giai điệu từng nằm im,',
+     'những ký ức quen thuộc,',
+     'những rung động thật thà.'],
+    ['Qua âm thanh tinh khiết, mộc mạc — đôi khi kỳ dị, lạ tai —',
+     'của những nhạc cụ làm thủ công từ tre, nứa, đồng thau…',
+     'người nghe được kết nối với một không gian cảm xúc sâu lắng,',
+     'được đồng điệu với quá khứ, với thiên nhiên, với con người, với cộng đồng,',
+     'với nhịp sống nguyên bản và nhân hậu.'],
+    ['Để lắng nghe —', 'và nhận ra chính mình.']
+  ];
+  // 3 điểm nhấn (icon + text)
+  var vtHi = lang === 'en' ? [
+    ['leaf',  'Listen to dozens of handcrafted indigenous instruments sounding together in a way that has never existed before.'],
+    ['note',  'An intimate, professional listening space with exceptional acoustic quality.'],
+    ['spark', 'Found nowhere else.']
+  ] : [
+    ['leaf',  'Lắng nghe hàng chục nhạc cụ thủ công bản địa cùng hòa âm một cách chưa từng có trước đây.'],
+    ['note',  'Không gian nghe nhạc chuyên nghiệp với chất lượng âm thanh vượt trội.'],
+    ['spark', 'Không có ở bất kỳ nơi nào khác.']
+  ];
+  function vtIcon(k){
+    if (k === 'leaf')  return '<path d="M5 20c0-9 7-15 15-15 0 9-7 15-15 15z"/><path d="M5 20C9 15 13 12 18 10"/>';
+    if (k === 'note')  return '<path d="M9 18V6l10-2v10"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>';
+    return '<path d="M12 2c.6 5 3.4 7.8 8.4 8.4-5 .6-7.8 3.4-8.4 8.4-.6-5-3.4-7.8-8.4-8.4C8.6 9.8 11.4 7 12 2z"/>';
+  }
+%>
+<section class="band vethuc" id="gioi-thieu">
   <div class="wrap">
     <div class="sec-head reveal"><span class="eyebrow"><%= t('Về THỨC', 'About THỨC') %></span><span class="rule"></span></div>
-    <div class="grid">
-      <div class="reveal">
-        <%
-          var poem = lang === 'en' ? [
-            ['Within each of us, something has never stopped flowing —',
-             'a mother’s voice, the sound of land, a drum from a ceremony long past.'],
-            ['Modern life does not erase it.',
-             'It only buries it.'],
-            ['THỨC is the moment it returns.',
-             'Through bamboo, bronze, and leather — materials that were here before we were born.',
-             'Through music made by those who still know how to listen.'],
-            ['Not to remember.',
-             'But to recognise — what was never truly gone.']
-          ] : [
-            ['Trong mỗi người có một dòng chảy không bao giờ tắt —',
-             'tiếng ru của mẹ, âm thanh của đất, nhịp trống trong một buổi lễ đã lâu.'],
-            ['Cuộc sống hôm nay không xóa đi dòng chảy ấy.',
-             'Nó chỉ lấp đi.'],
-            ['THỨC là khoảnh khắc nó trở về.',
-             'Qua tre, đồng, da — những chất liệu đã ở đây từ trước khi ta sinh ra.',
-             'Qua âm thanh của những người còn nhớ cách lắng nghe.'],
-            ['Không phải để nhớ lại.',
-             'Mà để nhận ra — điều vốn chưa bao giờ rời đi.']
-          ];
-        %>
-        <div class="poem">
-          <% poem.forEach(function(stanza){ %>
-            <p class="stanza"><% stanza.forEach(function(line, i){ %><%= line %><% if (i < stanza.length - 1) { %><br><% } %><% }) %></p>
-          <% }) %>
+
+    <div class="vethuc-slider reveal" data-vethuc>
+      <button class="vt-arrow vt-prev" type="button" aria-label="<%= t('Trang trước', 'Previous') %>">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+
+      <div class="vt-viewport">
+        <div class="vt-track">
+          <!-- Trang 1 -->
+          <article class="vt-page">
+            <span class="vt-pageno"><%= t('Trang 1', 'Page 1') %></span>
+            <p class="vt-lead"><%= vtIntro.lead %></p>
+            <p class="vt-body"><%= vtIntro.body %></p>
+            <p class="vt-strong"><% vtIntro.strong.forEach(function(l, i){ %><%= l %><% if (i < vtIntro.strong.length - 1) { %><br><% } %><% }) %></p>
+          </article>
+          <!-- Trang 2 -->
+          <article class="vt-page">
+            <span class="vt-pageno"><%= t('Trang 2', 'Page 2') %></span>
+            <div class="poem">
+              <% poem.forEach(function(stanza){ %>
+                <p class="stanza"><% stanza.forEach(function(line, i){ %><%= line %><% if (i < stanza.length - 1) { %><br><% } %><% }) %></p>
+              <% }) %>
+            </div>
+          </article>
         </div>
       </div>
-      <figure class="poem-img reveal">
-        <img src="/img/space-1.jpg" alt="<%= t('Không gian biểu diễn Alluvium — ánh sáng thấp', 'The Alluvium performance space — low light') %>" loading="lazy">
-      </figure>
+
+      <button class="vt-arrow vt-next" type="button" aria-label="<%= t('Trang sau', 'Next') %>">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+      <div class="vt-dots" role="tablist">
+        <button type="button" class="on" data-i="0" aria-label="<%= t('Trang 1', 'Page 1') %>"></button>
+        <button type="button" data-i="1" aria-label="<%= t('Trang 2', 'Page 2') %>"></button>
+      </div>
+    </div>
+
+    <div class="vt-highlights">
+      <% vtHi.forEach(function(h){ %>
+        <div class="vt-hl reveal">
+          <span class="vt-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><%- vtIcon(h[0]) %></svg></span>
+          <p><%= h[1] %></p>
+        </div>
+      <% }) %>
     </div>
   </div>
 </section>

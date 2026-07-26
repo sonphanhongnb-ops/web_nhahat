@@ -134,6 +134,45 @@
   });
 })();
 
+/* =========== VỀ THỨC — slider 2 trang (mũi tên 2 bên) =========== */
+(function () {
+  var root = document.querySelector('[data-vethuc]');
+  if (!root) return;
+  var vp = root.querySelector('.vt-viewport');
+  var track = root.querySelector('.vt-track');
+  var pages = root.querySelectorAll('.vt-page');
+  var prev = root.querySelector('.vt-prev');
+  var next = root.querySelector('.vt-next');
+  var dots = root.querySelectorAll('.vt-dots button');
+  var n = pages.length, i = 0;
+  function setHeight() { if (pages[i]) vp.style.height = pages[i].offsetHeight + 'px'; }
+  function go(k) {
+    i = Math.max(0, Math.min(n - 1, k));
+    track.style.transform = 'translateX(' + (-i * 100) + '%)';
+    for (var d = 0; d < dots.length; d++) dots[d].classList.toggle('on', d === i);
+    if (prev) prev.disabled = (i === 0);
+    if (next) next.disabled = (i === n - 1);
+    setHeight();
+  }
+  if (prev) prev.addEventListener('click', function () { go(i - 1); });
+  if (next) next.addEventListener('click', function () { go(i + 1); });
+  for (var d = 0; d < dots.length; d++) {
+    (function (btn) { btn.addEventListener('click', function () { go(+btn.getAttribute('data-i')); }); })(dots[d]);
+  }
+  // vuốt trên điện thoại
+  var x0 = null;
+  root.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+  root.addEventListener('touchend', function (e) {
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 44) go(dx < 0 ? i + 1 : i - 1);
+    x0 = null;
+  });
+  window.addEventListener('resize', setHeight);
+  window.addEventListener('load', setHeight);
+  go(0);
+})();
+
 /* =========== HERO SLIDESHOW (chế độ Slide) =========== */
 (function () {
   var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
