@@ -215,6 +215,47 @@
 
 </section>
 
+<!-- SECTION 4 — SOCIAL PROOF (cảm nhận / ghi nhận)
+     GHI CHÚ: Sau đêm ra mắt 2/9, thêm quote khán giả THẬT vào mảng audienceQuotes bên dưới
+     (giữ nguyên văn, không chỉnh sửa) — section sẽ tự chuyển sang hiển thị quote khán giả.
+     Trước 2/9: mảng để trống → hiển thị chứng thực Seaphony 2017. -->
+<%
+  var audienceQuotes = [
+    // { text: 'I didn\'t understand a word. I didn\'t need to.', by: 'Sarah M.', place: 'Australia' },
+    // { text: 'Tôi không hiểu tại sao tôi khóc. Nhưng tôi khóc.', by: 'Nguyễn H.', place: 'Hà Nội' },
+  ];
+%>
+<section class="band proof" id="cam-nhan">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow"><%= t('Cảm nhận', 'Voices') %></span><span class="rule"></span></div>
+
+    <% if (audienceQuotes.length) { %>
+      <!-- Sau 2/9 — quote khán giả thật -->
+      <div class="proof-grid">
+        <% audienceQuotes.forEach(function(qq){ %>
+          <figure class="proof-card reveal">
+            <blockquote><%= '“' + qq.text + '”' %></blockquote>
+            <p class="proof-by">— <b><%= qq.by %></b><%= qq.place ? ', ' + qq.place : '' %></p>
+          </figure>
+        <% }) %>
+      </div>
+      <p class="proof-cred reveal"><%= t('Cùng ê-kíp đứng sau', 'From the team behind') %>
+        <b>Seaphony 2017</b> · <%= t('Nhà hát Lớn Hà Nội', 'Hanoi Opera House') %>
+        · 50+ <%= t('nghệ nhân', 'artists') %> · 500+ <%= t('khán giả', 'audience') %></p>
+    <% } else { %>
+      <!-- Trước 2/9 — chứng thực Seaphony 2017 -->
+      <figure class="proof-quote reveal">
+        <blockquote><%= t('Đây là cột mốc lịch sử của âm nhạc thể nghiệm Việt Nam.', 'A historic milestone for experimental music in Vietnam.') %></blockquote>
+        <figcaption>— <b><%= t('Nhà hát Lớn Hà Nội', 'Hanoi Opera House') %></b> · <%= t('Tháng 12, 2017', 'December 2017') %></figcaption>
+      </figure>
+      <div class="proof-stats">
+        <div class="proof-stat reveal"><b>50+</b><span><%= t('nghệ nhân', 'artists') %></span></div>
+        <div class="proof-stat reveal"><b>500+</b><span><%= t('khán giả', 'audience members') %></span></div>
+      </div>
+    <% } %>
+  </div>
+</section>
+
 <!-- MOVEMENTS -->
 <section class="band movements" id="chuong">
   <div class="wrap">
