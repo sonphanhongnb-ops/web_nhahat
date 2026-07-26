@@ -830,7 +830,7 @@ img,svg,video,iframe{max-width:100%}
 /* =========================================================
    NÚT LIÊN HỆ NỔI (cố định, xổ ra Điện thoại · Zalo · Facebook · Instagram)
    ========================================================= */
-.cfab{position:fixed;right:20px;bottom:20px;z-index:95;display:flex;flex-direction:column-reverse;align-items:center;gap:12px}
+.cfab{position:fixed;right:20px;bottom:20px;z-index:95}
 .cfab-toggle{position:relative;width:58px;height:58px;border-radius:50%;border:0;cursor:pointer;
   background:var(--gold);color:var(--ink);display:grid;place-items:center;
   box-shadow:0 10px 26px rgba(0,0,0,.4);transition:transform .3s var(--ease),background .3s var(--ease);
@@ -852,7 +852,8 @@ img,svg,video,iframe{max-width:100%}
 .cfab-toggle:hover::after{opacity:1;transform:translateY(-50%)}
 .cfab.open .cfab-toggle::after{display:none}
 
-.cfab-items{display:flex;flex-direction:column;gap:12px;align-items:center}
+.cfab-items{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;gap:12px;align-items:center}
 .cfab-item{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;color:#fff;text-decoration:none;
   box-shadow:0 6px 18px rgba(0,0,0,.32);
   opacity:0;transform:translateY(14px) scale(.5);pointer-events:none;
