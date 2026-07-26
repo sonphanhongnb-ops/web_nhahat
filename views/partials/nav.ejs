@@ -27,20 +27,26 @@
 
 <!-- DRAWER -->
 <div class="drawer" id="drawer" aria-hidden="true">
-  <button class="close" id="close" aria-label="<%= t('Đóng menu', 'Close menu') %>">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 6l12 12M18 6L6 18"/></svg>
-  </button>
-  <a href="<%= home %>#gioi-thieu"><%= t('Về THỨC', 'About') %></a>
-  <a href="<%= home %>#khong-gian"><%= t('Không gian', 'Venue') %></a>
-  <a href="/seasound">SEASOUND</a>
-  <a href="<%= home %>#lich-dien"><%= t('Lịch diễn & Giá vé', 'Schedule & Prices') %></a>
-  <a href="/tin-tuc"><%= t('Tin tức', 'News') %></a>
-  <a href="<%= home %>#ghe-tham"><%= t('Ghé thăm', 'Visit') %></a>
-  <span class="lang-toggle drawer-lang">
-    <a href="<%= langHref('vi') %>" class="<%= lang === 'vi' ? 'on' : '' %>">Tiếng Việt</a>
-    <a href="<%= langHref('en') %>" class="<%= lang === 'en' ? 'on' : '' %>">English</a>
-  </span>
-  <form class="drawer-search" action="/tim-kiem" method="get" role="search">
-    <input type="search" name="q" placeholder="<%= t('Tìm bài viết…', 'Search…') %>" aria-label="<%= t('Tìm kiếm', 'Search') %>">
-  </form>
+  <div class="drawer-head">
+    <span class="drawer-brand"><b>THỨC</b><i>by SEASOUND</i></span>
+    <button class="close" id="close" aria-label="<%= t('Đóng menu', 'Close menu') %>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <nav class="drawer-links" aria-label="<%= t('Điều hướng', 'Navigation') %>">
+    <a href="<%= home %>#gioi-thieu"><%= t('Về THỨC', 'About') %></a>
+    <a href="<%= home %>#khong-gian"><%= t('Không gian', 'Venue') %></a>
+    <a href="/seasound">SEASOUND</a>
+    <a href="<%= home %>#lich-dien"><%= t('Lịch diễn', 'Schedule') %></a>
+    <a href="/tin-tuc"><%= t('Tin tức', 'News') %></a>
+    <a href="<%= home %>#ghe-tham"><%= t('Ghé thăm', 'Visit') %></a>
+  </nav>
+  <a class="btn btn-gold drawer-cta" href="<%= home %>#lich-dien"><%= t('Đặt vé ngay', 'Book now') %></a>
+  <div class="drawer-foot">
+    <span class="lang-toggle drawer-lang">
+      <a href="<%= langHref('vi') %>" class="<%= lang === 'vi' ? 'on' : '' %>">Tiếng Việt</a>
+      <a href="<%= langHref('en') %>" class="<%= lang === 'en' ? 'on' : '' %>">English</a>
+    </span>
+    <a class="drawer-tel" href="tel:+84868510989">☎ 0868 510 989</a>
+  </div>
 </div>
