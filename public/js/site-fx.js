@@ -136,7 +136,7 @@
 
 /* =========== HERO VIDEO — cố gắng tự phát, iOS chặn thì hiện ảnh nền =========== */
 (function () {
-  var v = document.querySelector('.hero-video');
+  var v = document.querySelector('video.hero-video');
   if (!v) return;
   try { v.muted = true; v.setAttribute('muted', ''); } catch (e) {}
   v.addEventListener('playing', function () { v.classList.add('playing'); });
