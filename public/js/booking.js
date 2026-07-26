@@ -406,6 +406,8 @@
   var showRows = Array.prototype.slice.call(document.querySelectorAll('#lich-dien .show'));
   document.addEventListener('click', function(e){
     if(e.target.closest('#booking')) return;
+    // Nút đặt vé nổi (FAB) -> mở modal
+    if(e.target.closest('.dvfab')){ e.preventDefault(); openBooking(null); return; }
     // Nút đặt vé chính -> mở modal
     var gold=e.target.closest('.btn-gold');
     var href = gold && gold.getAttribute('href');

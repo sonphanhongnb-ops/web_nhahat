@@ -869,4 +869,17 @@ img,svg,video,iframe{max-width:100%}
 .cfab-zalo{background:#0068ff;font-weight:700;font-size:.74rem;letter-spacing:.01em}
 .cfab-ig{background:linear-gradient(45deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888)}
 @media(max-width:600px){ .cfab{right:14px;bottom:14px;gap:11px} .cfab-toggle{width:54px;height:54px} .cfab-item{width:47px;height:47px} }
-@media(prefers-reduced-motion:reduce){ .cfab-toggle{animation:none} }
+
+/* Nút Đặt vé nổi (góc dưới–trái) */
+.dvfab{position:fixed;left:20px;bottom:20px;z-index:95;width:58px;height:58px;border-radius:50%;
+  background:var(--gold);color:var(--ink);display:grid;place-items:center;text-decoration:none;
+  box-shadow:0 10px 26px rgba(0,0,0,.4);transition:transform .3s var(--ease),background .3s var(--ease);
+  animation:cfabPulse 2.4s infinite}
+.dvfab:hover{background:var(--gold-hi);transform:scale(1.06)}
+.dvfab svg{width:27px;height:27px}
+.dvfab::after{content:attr(data-tip);position:absolute;left:70px;top:50%;transform:translateY(-50%) translateX(-6px);
+  background:var(--ink-2);color:var(--cream);border:1px solid var(--line);border-radius:4px;padding:.4rem .7rem;
+  font-size:.78rem;white-space:nowrap;opacity:0;pointer-events:none;transition:.25s var(--ease)}
+.dvfab:hover::after{opacity:1;transform:translateY(-50%)}
+@media(max-width:600px){ .dvfab{left:14px;bottom:14px;width:54px;height:54px} }
+@media(prefers-reduced-motion:reduce){ .cfab-toggle,.dvfab{animation:none} }
