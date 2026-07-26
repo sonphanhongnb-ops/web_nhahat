@@ -628,8 +628,6 @@ img,svg,video,iframe{max-width:100%}
   padding:clamp(1.6rem,2.6vw,2.2rem);display:flex;flex-direction:column;gap:1.05rem;overflow:hidden;
   transition:border-color .3s var(--ease),transform .3s var(--ease),background .3s var(--ease)}
 .vx-hl:hover{border-color:var(--line);transform:translateY(-4px);background:var(--ink-3)}
-.vx-hl-no{position:absolute;right:.7rem;top:.1rem;font-family:"Fraunces",Georgia,serif;
-  font-size:4.2rem;line-height:1;color:rgba(201,163,92,.08);pointer-events:none}
 .vx-hl p{margin:0;color:#d4c9b0;font-size:1.02rem;line-height:1.68;position:relative}
 .vt-ico{width:48px;height:48px;flex:none;border-radius:50%;display:grid;place-items:center;
   background:rgba(201,163,92,.10);border:1px solid var(--line);position:relative}

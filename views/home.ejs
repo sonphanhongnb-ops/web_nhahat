@@ -203,9 +203,8 @@
   <!-- 3 · ĐIỂM NHẤN — vì sao nên đến -->
   <div class="wrap">
     <div class="vx-highlights">
-      <% vtHi.forEach(function(h, i){ %>
+      <% vtHi.forEach(function(h){ %>
         <div class="vx-hl reveal">
-          <span class="vx-hl-no"><%= '0' + (i + 1) %></span>
           <span class="vt-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><%- vtIcon(h[0]) %></svg></span>
           <p><%= h[1] %></p>
         </div>
