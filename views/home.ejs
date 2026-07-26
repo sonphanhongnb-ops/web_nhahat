@@ -172,21 +172,31 @@
 
       <div class="vt-viewport">
         <div class="vt-track">
-          <!-- Trang 1 -->
+          <!-- Trang 1 — ảnh trái, chữ phải -->
           <article class="vt-page">
-            <span class="vt-pageno"><%= t('Trang 1', 'Page 1') %></span>
-            <p class="vt-lead"><%= vtIntro.lead %></p>
-            <p class="vt-body"><%= vtIntro.body %></p>
-            <p class="vt-strong"><% vtIntro.strong.forEach(function(l, i){ %><%= l %><% if (i < vtIntro.strong.length - 1) { %><br><% } %><% }) %></p>
-          </article>
-          <!-- Trang 2 -->
-          <article class="vt-page">
-            <span class="vt-pageno"><%= t('Trang 2', 'Page 2') %></span>
-            <div class="poem">
-              <% poem.forEach(function(stanza){ %>
-                <p class="stanza"><% stanza.forEach(function(line, i){ %><%= line %><% if (i < stanza.length - 1) { %><br><% } %><% }) %></p>
-              <% }) %>
+            <figure class="vt-media">
+              <img src="/img/space-2.jpg" alt="<%= t('Nghệ sĩ THỨC biểu diễn nhạc cụ bản địa', 'A THỨC musician performing on indigenous instruments') %>" loading="lazy">
+            </figure>
+            <div class="vt-text">
+              <span class="vt-pageno"><%= t('Trang 1 · Giới thiệu', 'Page 1 · Introduction') %></span>
+              <p class="vt-lead"><%= vtIntro.lead %></p>
+              <p class="vt-body"><%= vtIntro.body %></p>
+              <p class="vt-strong"><% vtIntro.strong.forEach(function(l, i){ %><%= l %><% if (i < vtIntro.strong.length - 1) { %><br><% } %><% }) %></p>
             </div>
+          </article>
+          <!-- Trang 2 — chữ trái, ảnh phải -->
+          <article class="vt-page vt-page--rev">
+            <div class="vt-text">
+              <span class="vt-pageno"><%= t('Trang 2 · Cảm thức', 'Page 2 · The current') %></span>
+              <div class="poem">
+                <% poem.forEach(function(stanza){ %>
+                  <p class="stanza"><% stanza.forEach(function(line, i){ %><%= line %><% if (i < stanza.length - 1) { %><br><% } %><% }) %></p>
+                <% }) %>
+              </div>
+            </div>
+            <figure class="vt-media">
+              <img src="/img/space-1.jpg" alt="<%= t('Không gian biểu diễn Alluvium — ánh sáng thấp', 'The Alluvium performance space — low light') %>" loading="lazy">
+            </figure>
           </article>
         </div>
       </div>
