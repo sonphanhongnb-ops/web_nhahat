@@ -62,7 +62,6 @@ router.get('/', (req, res) => {
     jsonLd: [
       SEO.organizationLd(),
       SEO.websiteLd(),
-      SEO.faqLd(faq),
       ...upcoming.map(SEO.eventLd),
     ],
   });
