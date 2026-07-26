@@ -577,10 +577,10 @@ img,svg,video,iframe{max-width:100%}
   padding-top:clamp(4rem,10vh,8rem);padding-bottom:clamp(3.2rem,8vh,6rem)}
 .vx-ov-copy{max-width:min(44rem,52%);margin-left:auto}   /* chữ nằm nửa phải */
 .vx-overture-in .eyebrow{margin-bottom:1.5rem}
-.vx-lead{font-family:"Fraunces",Georgia,serif;font-weight:400;
-  font-size:clamp(1.7rem,4.3vw,3.5rem);line-height:1.14;letter-spacing:-.01em;
+.vx-lead{font-family:"Fraunces",Georgia,serif;font-weight:300;
+  font-size:clamp(2rem,4.4vw,3.4rem);line-height:1.16;letter-spacing:-.01em;
   color:#fdfaf3;max-width:20ch;margin:0 0 1.4rem;text-shadow:0 4px 40px rgba(0,0,0,.6)}
-.vx-sub{color:#e0d5bd;font-size:clamp(1rem,1.5vw,1.18rem);line-height:1.75;
+.vx-sub{color:#e0d5bd;font-size:1.02rem;line-height:1.75;
   max-width:52ch;margin:0 0 clamp(1.9rem,4vw,2.8rem);text-shadow:0 2px 20px rgba(0,0,0,.55)}
 .vx-tenets{display:flex;flex-wrap:wrap;gap:clamp(1.5rem,5vw,3.6rem);align-items:baseline;margin-bottom:1.3rem}
 .vx-tenet{display:flex;align-items:baseline;gap:.55rem}
@@ -610,8 +610,8 @@ img,svg,video,iframe{max-width:100%}
 .vx-fill::after{content:"";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);
   width:9px;height:9px;border-radius:50%;background:var(--gold-hi);box-shadow:0 0 12px 3px rgba(230,196,124,.7)}
 .vx-stanza{font-family:"Be Vietnam Pro",system-ui,sans-serif;font-weight:300;color:#d9cfb6;
-  font-size:clamp(1.08rem,1.7vw,1.32rem);line-height:1.95;letter-spacing:.004em;
-  margin:0 0 clamp(1.6rem,3.5vw,2.4rem)}
+  font-size:1.02rem;line-height:1.85;letter-spacing:.004em;
+  margin:0 0 clamp(1.5rem,3.2vw,2.2rem)}
 .vx-stanza:last-child{margin-bottom:0}
 .vx-first::first-letter{font-family:"Fraunces",Georgia,serif;float:left;font-size:3.4em;
   line-height:.82;padding:.04em .14em 0 0;color:var(--gold-hi)}
@@ -630,7 +630,7 @@ img,svg,video,iframe{max-width:100%}
 .vx-hl:hover{border-color:var(--line);transform:translateY(-4px);background:var(--ink-3)}
 .vx-hl-no{position:absolute;right:.7rem;top:.1rem;font-family:"Fraunces",Georgia,serif;
   font-size:4.2rem;line-height:1;color:rgba(201,163,92,.08);pointer-events:none}
-.vx-hl p{margin:0;color:#d4c9b0;font-size:clamp(.98rem,1.3vw,1.08rem);line-height:1.68;position:relative}
+.vx-hl p{margin:0;color:#d4c9b0;font-size:1.02rem;line-height:1.68;position:relative}
 .vt-ico{width:48px;height:48px;flex:none;border-radius:50%;display:grid;place-items:center;
   background:rgba(201,163,92,.10);border:1px solid var(--line);position:relative}
 .vt-ico svg{width:25px;height:25px;fill:none;stroke:var(--gold-hi);stroke-width:1.5;
