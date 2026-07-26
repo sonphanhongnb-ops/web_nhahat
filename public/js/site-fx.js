@@ -134,6 +134,20 @@
   });
 })();
 
+/* =========== HERO VIDEO — cố gắng tự phát, iOS chặn thì hiện ảnh nền =========== */
+(function () {
+  var v = document.querySelector('.hero-video');
+  if (!v) return;
+  try { v.muted = true; v.setAttribute('muted', ''); } catch (e) {}
+  v.addEventListener('playing', function () { v.classList.add('playing'); });
+  function go() { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+  go();
+  // Thử phát lại khi người dùng chạm/cuộn/bấm (một số iOS chỉ cho phát sau tương tác)
+  ['touchstart', 'pointerdown', 'click', 'scroll'].forEach(function (ev) {
+    document.addEventListener(ev, function handler() { go(); }, { once: true, passive: true });
+  });
+})();
+
 /* =========== NÚT LIÊN HỆ NỔI (xổ ra danh sách kênh) =========== */
 (function () {
   var fab = document.getElementById('cfab');

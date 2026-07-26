@@ -11,8 +11,9 @@
 <main id="top">
 <section class="hero hero-<%= heroMode %>">
   <div class="hero-media" aria-hidden="true">
-    <% if (heroMode === 'video' && settings.hero_video_url) { %>
-      <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="<%= settings.hero_video_poster || settings.hero_image || '/img/hero.jpg' %>">
+    <% if (heroMode === 'video' && settings.hero_video_url) { var heroPoster = settings.hero_video_poster || settings.hero_image || '/img/hero.jpg'; %>
+      <div class="hero-photo hero-vfallback" style="background-image:url('<%= heroPoster %>')"></div>
+      <video class="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="<%= heroPoster %>">
         <source src="<%= settings.hero_video_url %>" type="video/mp4">
       </video>
     <% } else if (heroMode === 'slideshow') { %>
