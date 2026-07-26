@@ -217,6 +217,8 @@
   .foot-col h4{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin:0 0 1.1rem;font-family:"Be Vietnam Pro",sans-serif;font-weight:500}
   .foot-col a{display:block;color:var(--muted);font-size:.9rem;padding:.28rem 0;transition:color .25s}
   .foot-col a:hover{color:var(--cream)}
+  .foot-contact .foot-div{display:block;width:26px;height:1px;background:var(--line);margin:.9rem 0 .8rem}
+  .foot-contact .foot-label{display:block;color:var(--muted);font-size:.82rem;padding:.28rem 0 .1rem}
   .foot-bottom{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
     margin-top:clamp(2.5rem,6vh,4.5rem);padding-top:1.8rem;border-top:1px solid var(--line-soft);
     font-size:.78rem;color:var(--muted);letter-spacing:.03em}
